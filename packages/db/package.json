@@ -1,0 +1,13 @@
+{
+  "name": "@winsznx/bellstate-db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "pg": "^8.13.1",
+    "vitest": "^2.1.8"
+  }
+}
