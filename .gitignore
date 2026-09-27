@@ -1,0 +1,15 @@
+internal/
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+.turbo/
+.wrangler/
+.vercel/
+out/
+cache/
+broadcast/
+coverage/
+*.pem
+*.key

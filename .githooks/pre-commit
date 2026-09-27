@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+
+if echo "$staged" | grep -qiE '^internal/'; then
+  echo "pre-commit: refusing to commit staged path under internal/:" >&2
+  echo "$staged" | grep -iE '^internal/' >&2
+  exit 1
+fi
+
+bad_env=$(echo "$staged" | grep -E '(^|/)\.env(\.[A-Za-z0-9_.-]+)?$' | grep -vE '(^|/)\.env\.example$' || true)
+if [ -n "$bad_env" ]; then
+  echo "pre-commit: refusing to commit .env file(s) other than .env.example:" >&2
+  echo "$bad_env" >&2
+  exit 1
+fi
+
+secrets_dir="internal/secrets"
+if [ -d "$secrets_dir" ]; then
+  diff_content=$(git diff --cached -- $(echo "$staged" | tr '\n' ' ') 2>/dev/null || true)
+  for f in "$secrets_dir"/*.env; do
+    [ -e "$f" ] || continue
+    while IFS='=' read -r key value; do
+      [ -z "${value:-}" ] && continue
+      case "$key" in \#*) continue ;; esac
+      if [ -n "$value" ] && printf '%s' "$diff_content" | grep -qF -- "$value"; then
+        echo "pre-commit: staged diff contains a secret value from $f (key: $key)" >&2
+        exit 1
+      fi
+    done < "$f"
+  done
+fi
+
+exit 0
