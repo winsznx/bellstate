@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-27 — MicLib fix + fork tests pass against real X Layer mainnet state
+
+- Added `MicLib` and fixed a real correctness bug: `registerListing` was hashing `keccak256(abi.encode(mic, symbol))` instead of the PRD-specified `keccak256(utf8("<MIC>:<SYMBOL>"))` (§2.3) — a completely different digest that would have broken every offchain-to-onchain listing ID lookup (API, indexer). 4 new tests lock the formula against the PRD's own examples.
+- Added a fork test suite (`test/fork/HaltGateHookFork.t.sol`) run against real X Layer mainnet via `--fork-url https://rpc.xlayer.tech`, per PRD §14.2: full stack deployed, real wNVDAx and USDT0 balances, real `PoolManager`, real sequencer feed. 5/5 pass: pool registration on init, a real swap in REGULAR mode, a swap reverting during an attested halt, LendingGuard against the live sequencer feed, and — the core guarantee — liquidity removed successfully during a halt.
+- **Real integration bug found only by testing against live mainnet state, not mocks:** the deployed USDT0 proxy on X Layer rejects `transferFrom` with "exceeds allowance" even when the PoolManager itself holds a `type(uint256).max` approval — Uniswap v4's documented settlement path. It only works if the calling router is *also* approved directly. This is exactly the class of bug "no mocks, fork tests before any mainnet tx that moves value" exists to catch — it would have silently blocked every real swap or liquidity call against a live NVDAx/USDT0 pool.
+- Local suite: 49 passing + 1 clean skip (fork test, when run without `--fork-url`).
+
 ## 2026-09-27 — full §7.1 contract set complete (local, pre-deploy)
 
 - Added `LendingGuard`/`LendingPolicy` (§7.5), `PrintGuard`/`PrintPolicy` (§7.6), `PolicyLens` (§7.7), plus the minimal `IAggregatorV3` interface for the L2 sequencer feed.
