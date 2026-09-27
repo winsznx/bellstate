@@ -1,5 +1,13 @@
 # Bellstate build log
 
+## 2026-09-27 — full §7.1 contract set complete (local, pre-deploy)
+
+- Added `LendingGuard`/`LendingPolicy` (§7.5), `PrintGuard`/`PrintPolicy` (§7.6), `PolicyLens` (§7.7), plus the minimal `IAggregatorV3` interface for the L2 sequencer feed.
+- 45/45 tests pass across the whole `packages/contracts` suite (`forge test`), including a 256-run fuzz check that `PolicyLens` matches its underlying policy libraries call-for-call, and the PRD's own SK hynix Jul 28 08:00:02 KST worked example (§7.6) reproduced exactly: NXTE `EXTENDED` + `FIRST_MINUTE`, XKRX `CLOSED` → `REJECT`.
+- **Real bug found and fixed before touching mainnet:** `LendingPolicy.canLiquidate` let the `HALT_ONLY` profile fall through to *allow* liquidation during an attested `ASSET_HALTED`/`VENUE_HALTED` market — the PRD table excludes halted markets from all three profiles, not just STRICT/EXTENDED. Caught by `test_canLiquidate_haltOnly_blocksOnHalt`.
+- Every contract in PRD §7.1's table now exists and compiles: `BellstateHub`, `StatusAdapter`, `AdapterFactory`, `HaltGateHook`, `HookDeployer`, `LendingGuard`, `PrintGuard`, `PolicyLens`, plus all libraries (`BellstateTypes`, `StatusLib`, `HaltGatePolicy`, `LendingPolicy`, `PrintPolicy`) and interfaces (the four verbatim ERC-8392 interfaces, `IBellstateStatus`, `IBellstateHub`, `IAggregatorV3`).
+- **Not yet done, and required before any mainnet deploy:** fork tests against real X Layer state (PRD §14.2 guarantees — liquidity removal never blocked, pool never stuck longer than `maxAge + degradeAfter`), `MicLib`, deploy scripts (`scripts/deploy/`), and the actual `BellstateHub` deployment + Safe setup, which needs funded `deployer`/`operator`/`submitter` wallets (blocked on user funding, per §1) and Chainlink Data Streams credentials for gate G1 before the valuation facet can go live.
+
 ## 2026-09-27 — BellstateHub (contracts)
 
 - Foundry package scaffolded at `packages/contracts` (Solidity 0.8.26, `evm_version = cancun`, `via_ir = true` — required, see below). Dependencies (OpenZeppelin v5.1.0, Uniswap v4-core 1.0.2, v4-periphery 1.0.4, forge-std) installed via `forge install --no-git` and gitignored (87 MB); `setup.sh` reinstalls the pinned versions.
