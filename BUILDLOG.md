@@ -1,5 +1,14 @@
 # Bellstate build log
 
+## 2026-09-27 — BellstateHub (contracts)
+
+- Foundry package scaffolded at `packages/contracts` (Solidity 0.8.26, `evm_version = cancun`, `via_ir = true` — required, see below). Dependencies (OpenZeppelin v5.1.0, Uniswap v4-core 1.0.2, v4-periphery 1.0.4, forge-std) installed via `forge install --no-git` and gitignored (87 MB); `setup.sh` reinstalls the pinned versions.
+- Implemented per PRD §7.2/§6: `BellstateTypes` (packed structs + EIP-712 payloads + effective views), `StatusLib` (§6.6 staleness and transition-expiry rules), the four verbatim ERC-8392 interfaces + `IBellstateStatus` (App. A), `IBellstateHub`, and `BellstateHub` itself — EIP-712 quorum-signed submission for market/program/primary/valuation updates and heartbeats, 32-entry ring-buffer transition history per listing, domain heartbeats and `effectiveAsOf`, freeze/unfreeze, signer rotation, operator role via OZ `AccessControl` (owner = `DEFAULT_ADMIN_ROLE`, meant to be the Safe).
+- **Spec bug found and fixed:** PRD §7.2 lists both `event Frozen(uint64 until)` and `error Frozen(uint64)` — identical Solidity identifiers in one contract don't compile (`Error (2333): Identifier already declared`). Renamed the error to `HubFrozen`, kept the event name as specified. Flagging for the team in case the PRD should be corrected upstream.
+- **Compiler note:** `_applyMarketUpdate`'s EIP-712 digest hashing hit "stack too deep" under the default codegen (13+ locals in one struct hash). Enabled `via_ir = true` in `foundry.toml` to resolve it, rather than restructuring the (spec-mandated) struct fields.
+- 8/8 tests pass (`forge test --match-contract BellstateHubTest`): quorum-signed update acceptance, `StaleSeq` rejection, `QuorumNotMet` rejection, staleness-to-`UNKNOWN` aging after `maxAge`, `freeze()` blocking submission with `HubFrozen`, operator-only registration access control, transition history append.
+- Not yet built: `StatusAdapter`/`AdapterFactory`, `HaltGateHook`, `LendingGuard`, `PrintGuard`, `PolicyLens`, deploy scripts. Continuing per PRD §7.1 contract set next.
+
 ## 2026-09-27 — repo bootstrap
 
 - `git init -b main`, PRD moved to `internal/bellstate-prd.md` (gitignored, confirmed with `git check-ignore -v`).
