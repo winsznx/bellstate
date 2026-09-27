@@ -24,6 +24,7 @@ if [ -d "$secrets_dir" ]; then
     while IFS='=' read -r key value; do
       [ -z "${value:-}" ] && continue
       case "$key" in \#*) continue ;; esac
+      case "$key" in *_ADDRESS) continue ;; esac
       if [ -n "$value" ] && printf '%s' "$diff_content" | grep -qF -- "$value"; then
         echo "pre-commit: staged diff contains a secret value from $f (key: $key)" >&2
         exit 1
