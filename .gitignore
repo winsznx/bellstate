@@ -13,3 +13,9 @@ broadcast/
 coverage/
 *.pem
 *.key
+
+# foundry
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/broadcast/
+packages/contracts/lib/
