@@ -7,6 +7,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 import {BellstateTypes as T} from "./libraries/BellstateTypes.sol";
 import {StatusLib} from "./libraries/StatusLib.sol";
+import {MicLib} from "./libraries/MicLib.sol";
 import {IBellstateHub} from "./interfaces/IBellstateHub.sol";
 
 /// @notice PRD §7.2 — registry, signature verification, status storage, transition history,
@@ -112,12 +113,14 @@ contract BellstateHub is IBellstateHub, EIP712, AccessControl {
     // =========================================================================================
 
     function registerListing(bytes32 mic, bytes16 symbol, uint8 domain) external onlyRole(OPERATOR_ROLE) returns (bytes32 listingId) {
-        listingId = keccak256(abi.encode(mic, symbol));
+        // PRD §2.3: listingId = keccak256(utf8("<MIC>:<SYMBOL>")), not a raw word encoding.
+        listingId = MicLib.listingId(mic, symbol);
         _listings[listingId] = T.ListingConfig({mic: mic, symbol: symbol, domain: domain, active: true});
         _addDomainSubject(domain, listingId);
         emit ListingRegistered(listingId, mic, symbol, domain);
     }
 
+    /// @param key Must be exactly "xstocks:<SYMBOL>" (PRD §2.3) — programId = keccak256(utf8(key)).
     function registerProgram(string calldata key, bytes32 referenceListing, bytes32[] calldata homeListings_, bool hasPrimary)
         external
         onlyRole(OPERATOR_ROLE)
