@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-27 — Supabase schema, RLS, realtime, retention (§9)
+
+- 4 migrations in `packages/db`: full 26-table schema (§9.1) with `hex32`/`hex_address` domains enforcing the PRD's id/address regex shapes at the DB level, RLS per §9.2, realtime publication per §9.3, daily `pg_cron` retention per §9.4.
+- Validated by hand against a disposable `postgres:16` container: schema + RLS apply cleanly; simulated `anon` role confirms `venues` readable, `subscriptions`/`attestations`/`ops_audit` blocked even with rows present, all writes rejected, `replays` correctly filtered to `published = true`. Codified as `packages/db/tests/rls.test.ts`.
+- Docker daemon hung mid-pull of the `supabase/postgres` image (needed for local `pg_cron` testing, since plain `postgres` lacks the extension) and had to be restarted; the retention migration itself is standard `pg_cron` syntax and will be validated against the real Supabase project once credentials land.
+- Still blocked on `SUPABASE_URL`/keys (see `internal/NEEDS.md`) to actually push these migrations to a live project.
+
 ## 2026-09-27 — MicLib fix + fork tests pass against real X Layer mainnet state
 
 - Added `MicLib` and fixed a real correctness bug: `registerListing` was hashing `keccak256(abi.encode(mic, symbol))` instead of the PRD-specified `keccak256(utf8("<MIC>:<SYMBOL>"))` (§2.3) — a completely different digest that would have broken every offchain-to-onchain listing ID lookup (API, indexer). 4 new tests lock the formula against the PRD's own examples.
