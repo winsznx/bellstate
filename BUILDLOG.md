@@ -1,5 +1,14 @@
 # Bellstate build log
 
+## 2026-09-28 — packages/sources: Nasdaq + NYSE halt parsers (§4.1-4.2)
+
+- Both tested against live-captured fixtures (not hand-written), per §4's own requirement.
+- nasdaq-halts: handles the historical feed's letter Mkt codes and padded-whitespace HaltTime quirk the PRD calls out, verified against a real `&haltdate=09252026` capture. Full Appendix B.1 code classification.
+- nyse-halts: found a real quirk the PRD doesn't mention — some rows carry `"See Subsequent Halt"` (a non-date sentinel, not null) in `formatedResumptionDate` for a symbol re-halted immediately under a different reason. Handled, not crashed on.
+- Both scoped to one fetch's parsing only — cross-poll state (key merging, feed-window aging, MWCQ closing a carried-over halt) is the signer's `UsHalts` DO's job, documented as not-yet-built in each README.
+- Added `packages/sources/*` to the pnpm workspace glob (the PRD's two-levels-deep `packages/sources/<source>` layout wasn't covered by the existing `packages/*` pattern).
+- 17 new tests. Full workspace now 90/90 passing.
+
 ## 2026-09-28 — packages/protocol: EIP-712 signing/verification (§6)
 
 - MarketUpdate/ProgramUpdate/PrimaryUpdate/ValuationUpdate/Heartbeat EIP-712 types + Bellstate domain, pinned to §6.2 so digests match `packages/contracts`' `BellstateHub` byte-for-byte. Enum-to-uint8 mappings reuse `packages/engine`'s ordered arrays via a workspace dependency instead of duplicating them.
