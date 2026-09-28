@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-28 — packages/calendars: Appendix C/D session templates and holidays
+
+- `resolveSessionWindow(mic, t)`: pure, Intl.DateTimeFormat-based tz conversion (no external tz dependency), full XNAS/XNYS/ARCX/XASE/XHKG coverage, XKRX/NXTE v1 (pre-2026-09-14) only.
+- Multi-day CLOSED runs walk the holiday table backward/forward to find the true session boundary (a Saturday abutting a Friday close gets Friday's actual after-hours end as `sessionSince`, not an arbitrary midnight).
+- Not implemented, documented in README: 2027 calendars (provisional in the PRD), XKRX v2, KRX/NXTE Jan 2/CSAT shifts.
+- 11 tests incl. the PRD's Jul 28 NXTE-vs-XKRX divergence case. `packages/engine`'s `deriveMarket` can now take a real `SessionWindow` from here instead of a stub.
+
 ## 2026-09-28 — packages/engine: status-derivation pure functions (§3.3-3.6)
 
 - `deriveMarket`, `deriveProgram`, `derivePrimary`, `deriveValuation` — pure, no I/O, matching the PRD's first-match-wins precedence rules exactly (SOURCE_STALE > VENUE_HALTED > ASSET_HALTED > NONE for market interruption; NO_TRADING_OBJECT > ISSUER_TRADING_HALTED > XLAYER_LEG_DISABLED > PERIOD_CLOSED > PERIOD_LIMITED > ACCEPTING per primary leg; etc).
