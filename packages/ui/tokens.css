@@ -1,0 +1,74 @@
+/**
+ * Bellstate design tokens (PRD §11.1 step 3: "extract every design token... write them to
+ * packages/ui/tokens.css"). Source: the Closure Ledger design system (design/tokens.md records
+ * exactly which section of that system each token below came from).
+ */
+
+:root {
+  /* ---- Base palette (Closure Ledger §3) ---- */
+  --canvas: #f5f1e8;
+  --surface: #fffefb;
+  --surface-muted: #eee8de;
+  --surface-strong: #e4ddd1;
+  --border: #d8d0c4;
+  --border-strong: #beb4a7;
+  --ink: #1c1b1a;
+  --ink-secondary: #55504a;
+  --ink-muted: #7c756d;
+  --brand: #382f42;
+  --brand-strong: #2b2433;
+  --close: #e76545;
+  --close-soft: #fae3da;
+  --preserve: #7182dd;
+  --preserve-soft: #e9ecfb;
+  --success: #2f7a5d;
+  --warning: #b67a24;
+  --danger: #b64b48;
+  --info: #5d6fc6;
+
+  /* ---- Bellstate semantic layer ----
+   * PRD §11.3: "Status labels. Every enum shows as text; color never carries meaning alone."
+   * These map Bellstate's own facet states onto the base palette above; see design/tokens.md
+   * for the reasoning behind each mapping (most direct: §6's "unresolved/unknown uses dashed
+   * neutral line" maps exactly onto Bellstate's UNKNOWN state).
+   */
+  --status-regular: var(--success);
+  --status-extended: var(--preserve);
+  --status-auction: var(--warning);
+  --status-closed: var(--ink-muted);
+  --status-halted: var(--danger);
+  --status-venue-halted: var(--close);
+  --status-price-limited: var(--warning);
+  --status-unknown: var(--border-strong); /* dashed, per the source system's own unknown rule */
+
+  /* ---- Geometry (Closure Ledger §7) ---- */
+  --radius-control: 8px;
+  --radius-panel: 12px;
+  --radius-panel-lg: 16px;
+  --radius-hero-max: 20px;
+  --border-width: 1px;
+  --shadow-floating: 0 12px 36px rgba(28, 27, 26, 0.1);
+  --shadow-elevated: 0 1px 2px rgba(28, 27, 26, 0.06), 0 8px 24px rgba(28, 27, 26, 0.08);
+
+  /* Spacing scale (§7) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---- Typography (§4) ---- */
+  --font-primary: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* ---- Motion (§11) ---- */
+  --motion-fast: 140ms;
+  --motion-standard: 220ms;
+  --motion-narrative: 360ms;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
