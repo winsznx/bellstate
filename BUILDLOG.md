@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-28 — packages/sources: HKEXnews, xStocks, KIND gate-G2 findings (§4.3-4.5)
+
+- hkex-halts: scrapes the HTML predefined-document list (HK has no halt API). Caught a real ordering case in a live capture — one row's title mentions both RESUMPTION and a continued SUSPENSION (China Rare Earth, 00769); the PRD's stated rule ordering classifies it RESUME.
+- xstocks: full catalog/oracle client. Caught a real field-naming mismatch — `limitsPerPeriod` entries are `{minOrderFiatValue, maxOrderFiatValue}` in the live API, not the `{max}` shorthand the PRD's prose implies. NVDAx's XLayer addresses and Chainlink oracle metadata confirmed byte-for-byte against §3.6's worked example.
+- kind-halts: **not implemented.** Verified KIND access now works (the PRD's Sep 26 403 didn't reproduce), but the endpoint the PRD names (`tradinghaltissue.do`) turned out to be an administrative watch-list with no stock code or halt timestamp — not the halt-event data needed. The real data lives behind an undocumented, third-party-reverse-engineered endpoint (`disclosure/details.do`) not implemented here rather than guessed at. Findings recorded in `packages/sources/kind-halts/GATE_G2.md`.
+- Full workspace: 107 tests passing (6 db tests correctly skipped, no `TEST_DATABASE_URL`).
+
 ## 2026-09-28 — packages/sources: Nasdaq + NYSE halt parsers (§4.1-4.2)
 
 - Both tested against live-captured fixtures (not hand-written), per §4's own requirement.
