@@ -1,5 +1,13 @@
 # Bellstate build log
 
+## 2026-09-28 — First frontend work: design tokens + Board screen (§11)
+
+- `packages/ui`: status labels (§11.3), severity ordering, formatting, and the §11.4 copy-deck sentence templates — the "data, states and flows" layer gate G15 permits building without screen mockups. 24 tests matching the PRD's own worked examples.
+- Design tokens: no Bellstate screen mockups exist yet, but a real owned design system from a separate product (Closure Ledger) was adopted as the base palette/type/geometry, with a new Bellstate-specific semantic color mapping reasoned out per-token in `design/tokens.md`.
+- `apps/web`: Next.js scaffold wired to those tokens, first real screen (S01 Board) built against a documented fixture. Verified for real — built, started, HTML fetched, confirmed real content and compiled CSS.
+- Found and fixed a real toolchain issue: Next.js 15 doesn't support TypeScript 7 (used everywhere else in this workspace) for its build-time typecheck/lint. Disabled Next's redundant internal passes, pinned TS 5.7 locally for apps/web's own tooling; real typechecking still runs separately against the workspace's TS 7.
+- Full workspace: 165 tests passing.
+
 ## 2026-09-28 — apps/indexer: hub event decoding + domain-event derivation (§8.3)
 
 - `decodeHubLog`/`deriveDomainEvents`/`rows.ts`: decode real hub events into `status.*.changed`/`halt.opened`/`halt.resumed` domain events and `status_history`/`status_current` row shapes.
