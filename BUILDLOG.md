@@ -1,5 +1,11 @@
 # Bellstate build log
 
+## 2026-09-28 — S02 Asset screen (§11.5)
+
+- Identity, status hero (market sentence + 4 facet cards), home market region for ADS programs, "Not provided"/unknown-symbol states — against a documented fixture.
+- Verified for real: built, started, fetched /asset/NVDAx, /asset/SKHYx and /asset/DOESNOTEXIST directly — correct content and addresses on the real ones, a genuine 404 on the unknown one.
+- Timeline, halt history, guards panel, pools, integrate/subscribe regions need a live indexer/adapter, not built — noted on the page itself.
+
 ## 2026-09-28 — First frontend work: design tokens + Board screen (§11)
 
 - `packages/ui`: status labels (§11.3), severity ordering, formatting, and the §11.4 copy-deck sentence templates — the "data, states and flows" layer gate G15 permits building without screen mockups. 24 tests matching the PRD's own worked examples.
