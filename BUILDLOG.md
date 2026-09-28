@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-28 — Remaining 14 screens complete the PRD §11 route inventory (S05-S18)
+
+- Every screen in the PRD's route table now exists and returns 200. Restructured under `app/(site)` so global header/footer apply everywhere except `/embed/[symbol]` (must stay a bare iframe per §17) — verified directly.
+- Genuinely real pieces: S15 Method's observability matrix is the PRD's own facts; S09 Replay player's venue panel is computed live from packages/calendars at each replay's real historical timestamp (verified /replay/jul-28-skhynix reproduces the PRD's own Jul 28 worked example exactly); S10 Developers' EIP-712 field lists come straight from packages/protocol.
+- Everything gated on missing infra (swaps, x402, SIWE, ops actions, live network health) renders the PRD's own specified not-connected/no-pool/403 states rather than guessed interactive UI.
+- Full workspace: 182 tests passing (unchanged, page composition only). This closes out the entire frontend route inventory — everything left across the whole project now needs either credentials (Cloudflare, Chainlink, KIND, Supabase) or a funded/deployed contract, both tracked in `internal/NEEDS.md`.
+
 ## 2026-09-28 — S04 Event screen with real EIP-712 signature recovery (§11.5)
 
 - Header/diff, latency waterfall, evidence and share regions built. Evidence is genuinely cryptographic: the fixture signs a real MarketUpdate with packages/protocol at request time and recovers the signers — verified two distinct real addresses recovered correctly by fetching the page directly, not asserted internally.
