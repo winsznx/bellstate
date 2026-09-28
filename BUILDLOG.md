@@ -1,5 +1,13 @@
 # Bellstate build log
 
+## 2026-09-28 — First real frontend-to-backend integration: Board/Venue read live Supabase data
+
+- User provided the real Supabase anon + service-role keys. Decoded both JWTs to confirm role claims, then proved RLS end-to-end through the actual REST API (service-role inserted a row, anon correctly couldn't see it).
+- Seeded the real 7 venues (`scripts/seed/venues.sql`) and wired S01 Board's venue strip + S03 Venue's display name to read them live from Supabase, with a fixture fallback for unconfigured environments.
+- Found and fixed a real bug: Next.js statically prerendered the Board at build time by default, so a live DB change didn't show up until a rebuild — defeating the point. Caught by actually testing it (rename a venue live, re-fetch, still showed the old name), fixed with `force-dynamic`, re-verified the same way and confirmed it now works.
+- Also verified: got `untch`'s OKX Onchain OS key working (gate G11/x402), confirmed real and correctly scoped by testing directly against OKX's API (distinguishing "key doesn't exist" from "no access to this specific service").
+- Full workspace: 182 tests passing.
+
 ## 2026-09-28 — First real deployment: Supabase migrations live on the actual project
 
 - User provided the real Supabase pooler connection string + DB password. Applied all four migrations for real: 27 tables, daily retention `pg_cron` job scheduled and live, RLS enabled everywhere §9.2 specifies — verified with a fresh connection, not assumed.
