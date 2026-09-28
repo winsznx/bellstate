@@ -5,10 +5,13 @@ import { formatVenueTime, SESSION_LABELS } from "@winsznx/bellstate-ui";
 import Link from "next/link";
 import { SessionChip } from "../../../_components/StatusChip";
 import { haltsTodayFor, sourceHealthyFor } from "./fixtures";
+import { supabaseServerClient } from "../../lib/supabase";
 
 // PRD §11.5 S03. Regions 1-3 (clock/session, today's session bar, special days) are computed
-// live from packages/calendars — genuinely real, not fixture data. Regions 4-6 (halts today,
-// source health, cross-check drift) need live source polling, fixture-backed for now.
+// live from packages/calendars — genuinely real, not fixture data. The venue display name is
+// read live from Supabase's seeded `venues` table (scripts/seed/venues.sql), falling back to
+// this map if Supabase isn't configured. Regions 4-6 (halts today, source health, cross-check
+// drift) need live source polling, fixture-backed for now.
 
 const VENUE_NAMES: Record<Mic, string> = {
   XNAS: "Nasdaq",
@@ -33,6 +36,7 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
   const mic = rawMic.toUpperCase() as Mic;
   if (!(mic in VENUE_NAMES)) notFound();
 
+  const venueName = await loadVenueName(mic);
   const now = Math.floor(Date.now() / 1000);
   const current = resolveSessionWindow(mic, now);
   const windows = dayWindows(mic, now);
@@ -50,7 +54,7 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
     <main className="mx-auto max-w-[1000px] px-6 py-8">
       <header className="mb-6 border-b border-border pb-6">
         <div className="text-xs uppercase tracking-wide text-ink-muted">{mic}</div>
-        <h1 className="mt-1 text-3xl font-semibold text-ink">{VENUE_NAMES[mic]}</h1>
+        <h1 className="mt-1 text-3xl font-semibold text-ink">{venueName}</h1>
         <div className="mt-3 flex items-center gap-4">
           <SessionChip session={current.session} />
           <span className="text-sm text-ink-muted">
@@ -152,6 +156,14 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
       </section>
     </main>
   );
+}
+
+async function loadVenueName(mic: Mic): Promise<string> {
+  const supabase = supabaseServerClient();
+  if (!supabase) return VENUE_NAMES[mic];
+  const { data, error } = await supabase.from("venues").select("name").eq("mic", mic).maybeSingle();
+  if (error || !data) return VENUE_NAMES[mic];
+  return data.name as string;
 }
 
 function isSameDay(dateKey: string, mic: Mic, unixSeconds: number): boolean {

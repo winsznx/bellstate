@@ -3,19 +3,37 @@ import type { Mic } from "@winsznx/bellstate-calendars";
 import { InterruptionChip, SessionChip } from "../_components/StatusChip";
 import { VenueTile } from "../_components/VenueTile";
 import { BOARD_ROWS } from "./fixtures";
+import { supabaseServerClient } from "./lib/supabase";
 
-// PRD §11.5 S01. Fixture-backed for now — see fixtures.ts for why. Structure and states follow
-// the spec's region order (venue strip → summary → filter bar → asset table → live feed);
-// visual polish beyond design/tokens.md's tokens is intentionally withheld per gate G15 (no
-// Bellstate-specific screen mockups exist yet in design/reference/).
+// Forces this page to fetch fresh on every request instead of Next statically prerendering it
+// once at build time — the whole point of reading venues from Supabase is that it can change
+// without a redeploy. Verified this was a real bug, not a hypothetical: without this, a live DB
+// update did not appear on a re-fetched page until the next build.
+export const dynamic = "force-dynamic";
 
-const VENUES: { mic: Mic; venueName: string }[] = [
+// PRD §11.5 S01. The asset table, summary and live feed are still fixture-backed — see
+// fixtures.ts for why (no deployed hub/signer means no real status_current data). The venue
+// strip is different: `venues` is real, seeded reference data (scripts/seed/venues.sql) and is
+// read live from Supabase below, with the old hardcoded list only as a fallback for
+// environments with no Supabase env vars configured (e.g. a CI build). Visual polish beyond
+// design/tokens.md's tokens is intentionally withheld per gate G15 (no Bellstate-specific
+// screen mockups exist yet in design/reference/).
+
+const FALLBACK_VENUES: { mic: Mic; venueName: string }[] = [
   { mic: "XNAS", venueName: "Nasdaq" },
   { mic: "XNYS", venueName: "NYSE" },
   { mic: "XHKG", venueName: "HKEX" },
   { mic: "XKRX", venueName: "KRX" },
   { mic: "NXTE", venueName: "Nextrade" },
 ];
+
+async function loadVenues(): Promise<{ mic: Mic; venueName: string }[]> {
+  const supabase = supabaseServerClient();
+  if (!supabase) return FALLBACK_VENUES;
+  const { data, error } = await supabase.from("venues").select("mic, name").order("mic");
+  if (error || !data || data.length === 0) return FALLBACK_VENUES;
+  return data.map((v: { mic: string; name: string }) => ({ mic: v.mic as Mic, venueName: v.name }));
+}
 
 function summarize(rows: typeof BOARD_ROWS) {
   const counts: Record<string, number> = { REGULAR: 0, EXTENDED: 0, AUCTION: 0, CLOSED: 0, UNKNOWN: 0 };
@@ -30,7 +48,8 @@ function summarize(rows: typeof BOARD_ROWS) {
   return { counts, halted };
 }
 
-export default function BoardPage() {
+export default async function BoardPage() {
+  const venues = await loadVenues();
   const sorted = [...BOARD_ROWS].sort((a, b) => compareBySeverity(a.market, b.market));
   const summary = summarize(BOARD_ROWS);
 
@@ -43,7 +62,7 @@ export default function BoardPage() {
 
       {/* Region 1: venue strip */}
       <section aria-label="Venues" className="mb-8 flex gap-4 overflow-x-auto pb-2">
-        {VENUES.map((v) => {
+        {venues.map((v) => {
           const rowsForVenue = BOARD_ROWS.filter((r) => r.mic === v.mic);
           const representative = rowsForVenue[0];
           return (
