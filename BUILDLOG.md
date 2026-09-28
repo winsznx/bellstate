@@ -1,5 +1,13 @@
 # Bellstate build log
 
+## 2026-09-28 — First real deployment: Supabase migrations live on the actual project
+
+- User provided the real Supabase pooler connection string + DB password. Applied all four migrations for real: 27 tables, daily retention `pg_cron` job scheduled and live, RLS enabled everywhere §9.2 specifies — verified with a fresh connection, not assumed.
+- Running the RLS test suite against the live project (not just a disposable local postgres) surfaced two real platform differences: SSL handling for a hosted Postgres, and real Supabase's `anon` role having broad grants with RLS alone doing the blocking (different but equally correct error than a from-scratch local `anon` role produces). Fixed both, documented why.
+- Added test cleanup so the suite is safe to re-run against a persistent database — verified tables are back to 0 rows after a run.
+- Filled the now-known-public `SUPABASE_URL` into every `.env.example`. Still missing: `SUPABASE_SERVICE_ROLE_KEY` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (separate API keys, not the DB password) — needed before any Worker can read/write through the actual API path.
+- This is the first piece of the whole stack deployed anywhere outside a local test.
+
 ## 2026-09-28 — Remaining 14 screens complete the PRD §11 route inventory (S05-S18)
 
 - Every screen in the PRD's route table now exists and returns 200. Restructured under `app/(site)` so global header/footer apply everywhere except `/embed/[symbol]` (must stay a bare iframe per §17) — verified directly.
