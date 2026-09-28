@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-28 — apps/signer: Core tick + UsHalts/HkHalts domain logic (§8.1)
+
+- `core/tick.ts`: the Core DO's tick steps 2-5, pure — runs all four `derive*` functions per subject, diffs against onchain state, builds signed-update messages at `seq = onchain + 1`, produces a heartbeat for every domain with zero diffs.
+- `domains/usHalts.ts` / `domains/hkHalts.ts`: the cross-poll halt-merge state the source parser packages explicitly scoped out of themselves — Nasdaq-wins/NYSE-fills-resumption/MWCQ-closes-everything for US, RESUME-matches-most-recent-open-halt for HK. Integration-tested against real captured fixtures merged together.
+- Actual DO classes, `wrangler.jsonc`, signing, and KrHalts/Issuer/Valuation/Chain remain unbuilt — blocked on Cloudflare login, KIND gate G2, a deployed hub, and Chainlink Data Streams credentials respectively. Documented in `apps/signer/README.md`.
+- Full workspace: 123 tests passing.
+
 ## 2026-09-28 — packages/sources: HKEXnews, xStocks, KIND gate-G2 findings (§4.3-4.5)
 
 - hkex-halts: scrapes the HTML predefined-document list (HK has no halt API). Caught a real ordering case in a live capture — one row's title mentions both RESUMPTION and a continued SUSPENSION (China Rare Earth, 00769); the PRD's stated rule ordering classifies it RESUME.
