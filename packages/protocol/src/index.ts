@@ -6,5 +6,6 @@ export { encodeReasonCode, decodeReasonCode } from "./reasonCode.js";
 export { epochOf, epochStart, isFresh } from "./epoch.js";
 export { digestFor } from "./hash.js";
 export { signMessage } from "./sign.js";
+export { privateKeyToAccount } from "viem/accounts";
 export { recoverSigner, sortSignaturesByRecoveredAddress } from "./verify.js";
 export * from "./build.js";

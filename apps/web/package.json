@@ -12,6 +12,7 @@
   "dependencies": {
     "@winsznx/bellstate-calendars": "workspace:*",
     "@winsznx/bellstate-engine": "workspace:*",
+    "@winsznx/bellstate-protocol": "workspace:*",
     "@winsznx/bellstate-ui": "workspace:*",
     "next": "^15.1.4",
     "react": "^19.0.0",

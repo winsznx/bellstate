@@ -85,6 +85,9 @@ importers:
       '@winsznx/bellstate-engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@winsznx/bellstate-protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
       '@winsznx/bellstate-ui':
         specifier: workspace:*
         version: link:../../packages/ui
