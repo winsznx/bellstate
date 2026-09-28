@@ -1,5 +1,11 @@
 # Bellstate build log
 
+## 2026-09-28 — S03 Venue screen with real calendar computation (§11.5)
+
+- `packages/calendars` gained `dayWindows`/`upcomingSpecialDays` — the first screen where session/transition/special-days data is computed *live* from the calendars package rather than fixture data.
+- Verified against the real clock at build time: XNAS correctly showed REGULAR with the "now" marker at 52.4% through the day, special days correctly found Thanksgiving 2026 as nearest upcoming closure.
+- Full workspace: 182 tests passing.
+
 ## 2026-09-28 — S02 Asset screen (§11.5)
 
 - Identity, status hero (market sentence + 4 facet cards), home market region for ADS programs, "Not provided"/unknown-symbol states — against a documented fixture.
