@@ -1,0 +1,20 @@
+{
+  "name": "@winsznx/bellstate-source-nasdaq-halts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@winsznx/bellstate-calendars": "workspace:*",
+    "@winsznx/bellstate-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^7.0.2",
+    "vitest": "^2.1.8"
+  }
+}

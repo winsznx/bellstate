@@ -1,0 +1,184 @@
+{
+  "totalCount" : 1030,
+  "results" : [ {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:08",
+    "symbol" : "MTNB",
+    "issuerName" : "Matinas BioPharma Holdings, Inc.",
+    "sourceExchange" : "NYSE American",
+    "reason" : "Corporate Action",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "BTLN",
+    "issuerName" : "Brightline Interactive, Inc. Common Stock",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "CTNT",
+    "issuerName" : "Cheetah Net Supply Chain Service Inc. Class A Common Stock",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "DLXY",
+    "issuerName" : "Delixy Holdings Limited Class A Ordinary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "FBGL",
+    "issuerName" : "FBS Global Limited Ordinary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "DCX",
+    "issuerName" : "Digital Currency X Technology Inc. Class A Ordinary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "IMMP",
+    "issuerName" : "Immutep Limited American Depositary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "19:50:00",
+    "symbol" : "GMEX",
+    "issuerName" : "GMEX ROBOTICS CORPORATION Class A Ordinary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "News Pending",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "16:38:39",
+    "symbol" : "SBXD WS",
+    "issuerName" : "SilverBox Corp IV Redeemable warrants, each whole warrant exercisable for one Class A Ordinary Share at an exercise price of $11.50",
+    "sourceExchange" : "NYSE",
+    "reason" : "News Dissemination",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "16:38:39",
+    "symbol" : "SBXD",
+    "issuerName" : "SilverBox Corp IV",
+    "sourceExchange" : "NYSE",
+    "reason" : "News Dissemination",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "16:38:39",
+    "symbol" : "SBXD U",
+    "issuerName" : "SilverBox Corp IV Units, each consisting of one Class A ordinary share and one-third of one redeemable warrant",
+    "sourceExchange" : "NYSE",
+    "reason" : "News Dissemination",
+    "formatedResumptionDate" : null,
+    "formatedResumptionTime" : null
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "16:05:05",
+    "symbol" : "SBXD WS",
+    "issuerName" : "SilverBox Corp IV Redeemable warrants, each whole warrant exercisable for one Class A Ordinary Share at an exercise price of $11.50",
+    "sourceExchange" : "NYSE",
+    "reason" : "Regulatory Concern",
+    "formatedResumptionDate" : "See Subsequent Halt",
+    "formatedResumptionTime" : "See Subsequent Halt"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "16:05:05",
+    "symbol" : "SBXD",
+    "issuerName" : "SilverBox Corp IV",
+    "sourceExchange" : "NYSE",
+    "reason" : "Regulatory Concern",
+    "formatedResumptionDate" : "See Subsequent Halt",
+    "formatedResumptionTime" : "See Subsequent Halt"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "16:05:05",
+    "symbol" : "SBXD U",
+    "issuerName" : "SilverBox Corp IV Units, each consisting of one Class A ordinary share and one-third of one redeemable warrant",
+    "sourceExchange" : "NYSE",
+    "reason" : "Regulatory Concern",
+    "formatedResumptionDate" : "See Subsequent Halt",
+    "formatedResumptionTime" : "See Subsequent Halt"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "15:46:58",
+    "symbol" : "WZRD",
+    "issuerName" : "Opportunistic Trader ETF",
+    "sourceExchange" : "Cboe BZX",
+    "reason" : "LULD Pause",
+    "formatedResumptionDate" : "2026-09-25",
+    "formatedResumptionTime" : "16:00:00"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "14:47:14",
+    "symbol" : "NIVF",
+    "issuerName" : "NewGenIvf Group Limited Class A ordinary shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "LULD Pause",
+    "formatedResumptionDate" : "2026-09-25",
+    "formatedResumptionTime" : "14:52:14"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "14:39:27",
+    "symbol" : "IPEXU",
+    "issuerName" : "Inflection Point Acquisition Corp. V Units",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "LULD Pause",
+    "formatedResumptionDate" : "2026-09-25",
+    "formatedResumptionTime" : "14:44:27"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "14:38:24",
+    "symbol" : "CRE",
+    "issuerName" : "Cre8 Enterprise Limited Class A Ordinary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "LULD Pause",
+    "formatedResumptionDate" : "2026-09-25",
+    "formatedResumptionTime" : "14:43:24"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "14:03:56",
+    "symbol" : "IPST",
+    "issuerName" : "IP Strategy Holdings, Inc. Common Stock",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "LULD Pause",
+    "formatedResumptionDate" : "2026-09-25",
+    "formatedResumptionTime" : "14:13:56"
+  }, {
+    "formatedHaltDate" : "2026-09-25",
+    "formatedHaltTime" : "13:34:45",
+    "symbol" : "IPEX",
+    "issuerName" : "Inflection Point Acquisition Corp. V Class A Ordinary Shares",
+    "sourceExchange" : "Nasdaq",
+    "reason" : "LULD Pause",
+    "formatedResumptionDate" : "2026-09-25",
+    "formatedResumptionTime" : "13:39:45"
+  } ]
+}
