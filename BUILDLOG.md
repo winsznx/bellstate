@@ -1,5 +1,11 @@
 # Bellstate build log
 
+## 2026-09-28 — S04 Event screen with real EIP-712 signature recovery (§11.5)
+
+- Header/diff, latency waterfall, evidence and share regions built. Evidence is genuinely cryptographic: the fixture signs a real MarketUpdate with packages/protocol at request time and recovers the signers — verified two distinct real addresses recovered correctly by fetching the page directly, not asserted internally.
+- Found and fixed a real duplicate-viem-instance type clash between apps/web's locally-pinned TS 5.7 (for Next's benefit) and the workspace's TS 7 — fixed by routing all viem usage through packages/protocol instead of importing viem directly in apps/web.
+- Full workspace: 182 tests passing.
+
 ## 2026-09-28 — S03 Venue screen with real calendar computation (§11.5)
 
 - `packages/calendars` gained `dayWindows`/`upcomingSpecialDays` — the first screen where session/transition/special-days data is computed *live* from the calendars package rather than fixture data.
