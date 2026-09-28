@@ -73,6 +73,48 @@ export function resolveSessionWindow(mic: Mic, unixSeconds: number): SessionWind
   return { session: current.session as Session, sessionSince, nextScheduledTransition };
 }
 
+/** All of one calendar day's windows in unix seconds, for a session bar / today view. Unlike
+ * resolveSessionWindow, this doesn't walk across day boundaries for CLOSED_FULL days — it
+ * describes exactly the requested calendar date, closed or not. */
+export function dayWindows(mic: Mic, unixSeconds: number): SessionWindow[] {
+  const timeZone = TIMEZONE_BY_MIC[mic];
+  const local = localDateTime(unixSeconds, timeZone);
+  const dayType = classifyDay(mic, local.year, local.month, local.day, local.weekday);
+  const dayStart = zonedTimeToUnix(local.year, local.month, local.day, 0, 0, 0, timeZone);
+  return windowsForDay(mic, dayType).map((w) => ({
+    session: w.session as Session,
+    sessionSince: dayStart + w.startSec,
+    nextScheduledTransition: dayStart + w.endSec,
+  }));
+}
+
+export interface SpecialDay {
+  dateKey: string;
+  type: "closed" | "half";
+}
+
+/** PRD §11.5 S03 region 3: "Special days in the next N days: holidays, half-days and delayed
+ * opens." Delayed-open detection isn't implemented (packages/calendars doesn't yet model
+ * KRX/NXTE special-day shifts — see packages/calendars/README.md), so this covers full closures
+ * and half-days only. */
+export function upcomingSpecialDays(mic: Mic, fromUnixSeconds: number, days = 60): SpecialDay[] {
+  const timeZone = TIMEZONE_BY_MIC[mic];
+  const local = localDateTime(fromUnixSeconds, timeZone);
+  const results: SpecialDay[] = [];
+  let cur = { year: local.year, month: local.month, day: local.day };
+  for (let i = 0; i < days; i++) {
+    const weekday = weekdayOf(cur);
+    if (weekday !== 0 && weekday !== 6) {
+      const family = FAMILY_BY_MIC[mic];
+      const key = dateKey(cur.year, cur.month, cur.day);
+      if (CLOSED_DAYS[family].has(key)) results.push({ dateKey: key, type: "closed" });
+      else if (HALF_DAYS[family].has(key)) results.push({ dateKey: key, type: "half" });
+    }
+    cur = addCalendarDays(cur.year, cur.month, cur.day, 1);
+  }
+  return results;
+}
+
 function weekdayOf(date: { year: number; month: number; day: number }): number {
   return new Date(Date.UTC(date.year, date.month - 1, date.day, 12)).getUTCDay();
 }
