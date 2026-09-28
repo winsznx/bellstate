@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-28 — packages/policy: TS mirror of the Solidity policy libraries (§7.4-7.7), verified against real PolicyLens
+
+- Line-for-line TS ports of `HaltGatePolicy`, `LendingPolicy`, `PrintPolicy`.
+- Verified against the real thing: deployed the actual compiled `PolicyLens` to a local anvil, ran the PRD's exact gate ("packages/policy equals PolicyLens on 10,000 random inputs") at the full 10,000 iterations across all four functions. Zero mismatches.
+- Fast unit tests replicate the exact worked-example scenarios from `packages/contracts`' own Foundry tests (including the SK hynix Jul 28 08:00:02 KST case) so a port mistake surfaces in milliseconds, not the ~100s fork run.
+- Full workspace: 134 tests passing (10 fork-gated tests skipped by default, need `anvil` on PATH).
+
 ## 2026-09-28 — apps/signer: Core tick + UsHalts/HkHalts domain logic (§8.1)
 
 - `core/tick.ts`: the Core DO's tick steps 2-5, pure — runs all four `derive*` functions per subject, diffs against onchain state, builds signed-update messages at `seq = onchain + 1`, produces a heartbeat for every domain with zero diffs.
