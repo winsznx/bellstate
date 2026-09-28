@@ -1,5 +1,13 @@
 # Bellstate build log
 
+## 2026-09-28 — packages/engine: status-derivation pure functions (§3.3-3.6)
+
+- `deriveMarket`, `deriveProgram`, `derivePrimary`, `deriveValuation` — pure, no I/O, matching the PRD's first-match-wins precedence rules exactly (SOURCE_STALE > VENUE_HALTED > ASSET_HALTED > NONE for market interruption; NO_TRADING_OBJECT > ISSUER_TRADING_HALTED > XLAYER_LEG_DISABLED > PERIOD_CLOSED > PERIOD_LIMITED > ACCEPTING per primary leg; etc).
+- Enum orderings in `types.ts` match ERC-8392 Appendix A and the Bellstate extension Appendix B.4 exactly (UNKNOWN = 0 first), lining up 1:1 with `packages/contracts`' `BellstateTypes.sol`.
+- Scoping decision: `deriveMarket` takes a pre-resolved `SessionWindow` rather than reading a venue calendar itself, keeping the engine a single-listing pure function; calendar resolution belongs to `packages/calendars` (not yet built). Documented in `packages/engine/README.md`.
+- 26 golden tests covering representative §3.8 canonical-joint-reading rows (Saturday close, pre-market, T1 news halt, LULD pause, MWCB beating a concurrent asset halt, HKEX random-end window, stale halt source, halt carrying across a close) plus the §3.9 determinism property. `tsc --noEmit` clean, all tests pass.
+- Next per deployment order (§15.2): `packages/calendars` (venue session templates + holiday tables, App. C/D) — `deriveMarket` needs it to get a real `SessionWindow` instead of a caller-supplied stub.
+
 ## 2026-09-27 — Supabase schema, RLS, realtime, retention (§9)
 
 - 4 migrations in `packages/db`: full 26-table schema (§9.1) with `hex32`/`hex_address` domains enforcing the PRD's id/address regex shapes at the DB level, RLS per §9.2, realtime publication per §9.3, daily `pg_cron` retention per §9.4.
