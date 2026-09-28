@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-28 — packages/protocol: EIP-712 signing/verification (§6)
+
+- MarketUpdate/ProgramUpdate/PrimaryUpdate/ValuationUpdate/Heartbeat EIP-712 types + Bellstate domain, pinned to §6.2 so digests match `packages/contracts`' `BellstateHub` byte-for-byte. Enum-to-uint8 mappings reuse `packages/engine`'s ordered arrays via a workspace dependency instead of duplicating them.
+- Two PRD gaps flagged in README: `sourceMarketStatus`'s enum ordering isn't specified anywhere (assumed UNKNOWN=0/OPEN=1/CLOSED=2 by convention), and `PrimaryUpdate`'s single `primaryReason` for two legs needs a tie-break the PRD doesn't give (issuance wins unless NONE).
+- 10 tests: sign/recover roundtrip, digest determinism, reasonCode round-trips (including the "NONE" -> zero-bytes8 sentinel), epoch boundaries, signature sorting + duplicate rejection. `tsc --noEmit` clean.
+- Switched from ad hoc `npm install` per package to a real `pnpm install` at the repo root now that a package (protocol) needs a workspace dependency (engine) — this is how the rest of the monorepo should be installed going forward.
+
 ## 2026-09-28 — packages/calendars: Appendix C/D session templates and holidays
 
 - `resolveSessionWindow(mic, t)`: pure, Intl.DateTimeFormat-based tz conversion (no external tz dependency), full XNAS/XNYS/ARCX/XASE/XHKG coverage, XKRX/NXTE v1 (pre-2026-09-14) only.
