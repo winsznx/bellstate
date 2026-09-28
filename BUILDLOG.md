@@ -1,5 +1,11 @@
 # Bellstate build log
 
+## 2026-09-28 — apps/indexer: hub event decoding + domain-event derivation (§8.3)
+
+- `decodeHubLog`/`deriveDomainEvents`/`rows.ts`: decode real hub events into `status.*.changed`/`halt.opened`/`halt.resumed` domain events and `status_history`/`status_current` row shapes.
+- Verified against a real deployed contract: `tests/decode.fork.test.ts` deploys the actual compiled `BellstateHub` to a local anvil, submits a genuinely quorum-signed `MarketUpdate` via `packages/protocol`'s real EIP-712 signing, decodes the real emitted log — including a real halt transition proving `halt.opened`/`halt.resumed` against actual event data.
+- Full workspace: 141 tests passing.
+
 ## 2026-09-28 — packages/policy: TS mirror of the Solidity policy libraries (§7.4-7.7), verified against real PolicyLens
 
 - Line-for-line TS ports of `HaltGatePolicy`, `LendingPolicy`, `PrintPolicy`.
