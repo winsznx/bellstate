@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-29 — apps/api webhooks logic, verified against real Supabase
+
+- Full §10.5 webhook logic: URL validation (SSRF protections — private IP/CGNAT/metadata rejection for IPv4 and IPv6), HMAC secret signing/verification, filter matching, and real Supabase-backed CRUD.
+- Verified against the actual production project, not a mock: create/list/delete cycle, a genuine HTTP test-delivery round trip to a real public endpoint, delivery correctly recorded. Database confirmed back to zero rows afterward.
+- Found and fixed a real test-infra bug (`describe.skip` still runs its callback body at collection time) and documented a real design gap (can't sign a test delivery correctly since secrets are hash-only stored, by design) rather than working around either dishonestly.
+- Full workspace: 210 tests passing.
+
 ## 2026-09-28 — First real frontend-to-backend integration: Board/Venue read live Supabase data
 
 - User provided the real Supabase anon + service-role keys. Decoded both JWTs to confirm role claims, then proved RLS end-to-end through the actual REST API (service-role inserted a row, anon correctly couldn't see it).
