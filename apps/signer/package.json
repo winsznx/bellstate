@@ -1,0 +1,24 @@
+{
+  "name": "@winsznx/bellstate-signer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@winsznx/bellstate-calendars": "workspace:*",
+    "@winsznx/bellstate-engine": "workspace:*",
+    "@winsznx/bellstate-protocol": "workspace:*",
+    "@winsznx/bellstate-source-hkex-halts": "workspace:*",
+    "@winsznx/bellstate-source-nasdaq-halts": "workspace:*",
+    "@winsznx/bellstate-source-nyse-halts": "workspace:*",
+    "@winsznx/bellstate-source-xstocks": "workspace:*",
+    "viem": "^2.56.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^7.0.2",
+    "vitest": "^2.1.8"
+  }
+}
