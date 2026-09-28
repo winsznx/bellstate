@@ -1,7 +1,7 @@
 import { compareBySeverity, formatVenueTime, PROGRAM_LIFECYCLE_LABELS, PRIMARY_LEG_LABELS, VALUATION_LABELS, VALUATION_NOT_PROVIDED_LABEL } from "@winsznx/bellstate-ui";
 import type { Mic } from "@winsznx/bellstate-calendars";
-import { InterruptionChip, SessionChip } from "./_components/StatusChip";
-import { VenueTile } from "./_components/VenueTile";
+import { InterruptionChip, SessionChip } from "../_components/StatusChip";
+import { VenueTile } from "../_components/VenueTile";
 import { BOARD_ROWS } from "./fixtures";
 
 // PRD §11.5 S01. Fixture-backed for now — see fixtures.ts for why. Structure and states follow

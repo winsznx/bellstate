@@ -3,7 +3,7 @@ import type { Mic } from "@winsznx/bellstate-calendars";
 import { dayWindows, resolveSessionWindow, TIMEZONE_BY_MIC, upcomingSpecialDays } from "@winsznx/bellstate-calendars";
 import { formatVenueTime, SESSION_LABELS } from "@winsznx/bellstate-ui";
 import Link from "next/link";
-import { SessionChip } from "../../_components/StatusChip";
+import { SessionChip } from "../../../_components/StatusChip";
 import { haltsTodayFor, sourceHealthyFor } from "./fixtures";
 
 // PRD §11.5 S03. Regions 1-3 (clock/session, today's session bar, special days) are computed

@@ -9,8 +9,8 @@ import {
   SESSION_LABELS,
   VALUATION_LABELS,
 } from "@winsznx/bellstate-ui";
-import { FacetCard } from "../../_components/FacetCard";
-import { SessionChip } from "../../_components/StatusChip";
+import { FacetCard } from "../../../_components/FacetCard";
+import { SessionChip } from "../../../_components/StatusChip";
 import { getAssetDetail } from "./fixtures";
 
 // PRD §11.5 S02. Identity + status hero + home market are built; timeline, halt history,
