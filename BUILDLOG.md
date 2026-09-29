@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-29 — GET /v1/venues deployed and verified against real wall-clock time
+
+- First real §10.2 API endpoint, live at `https://bellstate-api.timjosh507.workers.dev/v1/venues`. Computes session/next-transition live from `packages/calendars` against Supabase's real seeded venues.
+- Verified against actual wall-clock time at request time, not asserted against itself: XKRX correctly showed AUCTION during its real 15:20-15:30 KST closing call, XHKG correctly showed REGULAR during its real 13:00-16:00 HKT session.
+- Deliberately did not wire the webhooks CRUD into public HTTP routes — no SIWE auth yet, and doing so would be a real security hole, not a deferred TODO.
+- Full workspace: 211 tests passing.
+
 ## 2026-09-29 — First real Cloudflare Worker deployment, live on the public internet
 
 - User ran `wrangler login` — confirmed via `wrangler whoami`. This unblocks every Worker deploy (signer, aggregator, indexer, notifier, watch, api).
