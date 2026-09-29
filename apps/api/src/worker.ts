@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { venuesRoute } from "./routes/venues.js";
 
 export interface Env {
   SUPABASE_URL: string;
@@ -11,6 +12,9 @@ const app = new Hono<{ Bindings: Env }>();
 
 // PRD §10.1: "CORS: * for GET."
 app.use("*", cors({ origin: "*", allowMethods: ["GET"] }));
+
+// PRD §10.1: "Base: ${API_URL}/v1."
+app.route("/v1", venuesRoute);
 
 /**
  * Not in the PRD's §10.2 endpoint table — a minimal liveness/readiness check for this first real

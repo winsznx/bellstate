@@ -23,6 +23,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.47.10
         version: 2.117.2
+      '@winsznx/bellstate-calendars':
+        specifier: workspace:*
+        version: link:../../packages/calendars
       hono:
         specifier: ^4.6.14
         version: 4.13.11
