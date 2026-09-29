@@ -39,7 +39,7 @@ export function VenueTile({
   sourceHealth: SourceHealth;
 }) {
   return (
-    <div className="min-w-[180px] rounded-panel border border-border bg-surface p-4 shadow-elevated">
+    <div className="min-w-[180px] rounded-panel border border-border bg-surface p-4 shadow-card">
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs text-ink-muted">{mic}</span>
         <span className={`h-2 w-2 rounded-full ${HEALTH_DOT_CLASS[sourceHealth]}`} aria-label={HEALTH_LABEL[sourceHealth]} />

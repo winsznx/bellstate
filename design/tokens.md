@@ -2,74 +2,83 @@
 
 Per PRD §11.1 step 3: every token in `packages/ui/tokens.css`, with where it came from.
 
-## Source
+## Source — corrected
+
+An earlier version of this file sourced Bellstate's palette from a separate design-system
+markdown document (a different product the team owns). That document turned out to describe an
+**earlier, superseded** brand — the product's own `tailwind.config.ts` says so in its own
+comments: "The prior config derived every value from internal/brand/brand.json (the 'Closure
+Ledger' warm coral/periwinkle system). That brand was deliberately overridden by direct decision
+in favour of the neutral white / soft-grey-card / black-pill / blue-accent system." Building
+Bellstate's tokens from the markdown doc instead of the actual shipped code was the mistake —
+the values below are copied verbatim from that product's real `apps/web/app/globals.css` and
+`apps/web/tailwind.config.ts` as they exist today, not from prose about them.
 
 Bellstate has no Bellstate-specific screen mockups yet (`design/reference/` is empty — gate G15
-applies to the visual layer of every screen, per §11.1 step 10). The base palette, type scale,
-geometry and motion values below come from a design system the team owns for a separate product
-("Closure Ledger," documented in full at `~/closeout/internal/brand/design.md` on the machine
-this was built on — not part of this repo, referenced here for provenance only). Hex values are
-copied verbatim from that document's own token table, not pixel-sampled from a raster image, so
-they're exact rather than estimated.
+applies to the visual layer of every screen, §11.1 step 10). The base palette, type scale,
+geometry and motion values below are a direct, faithful adoption of that real code. The
+Bellstate *semantic* layer (`--status-regular` through `--status-unknown`) is new — the source
+product has no concept of a market session or a halt — reasoned out below.
 
-**What this means in practice:** the base palette (`--canvas` through `--info`) is a direct,
-faithful adoption. The Bellstate *semantic* layer (`--status-regular` through
-`--status-unknown`) is new — Closure Ledger has no concept of a market session or a halt, so
-those mappings are this project's own design judgment, reasoned out below. Anything under
-"Bellstate semantic layer" should be treated as inherited-but-adapted, not verbatim, the way
-everything above it is.
+## Base palette (verbatim from `globals.css` / `tailwind.config.ts`)
 
-## Base palette (Closure Ledger §3, verbatim)
+| Token | Value |
+|---|---|
+| `--canvas` | `#FFFFFF` |
+| `--surface` | `#FFFFFF` |
+| `--surface-muted` | `#F4F5F7` |
+| `--surface-strong` | `#EBEDF1` |
+| `--border` | `#E7E9EE` |
+| `--border-strong` | `#D4D8E0` |
+| `--ink` | `#0B0B0C` |
+| `--ink-secondary` | `#5B6270` |
+| `--ink-muted` | `#8A909C` |
+| `--brand` | `#101114` |
+| `--brand-strong` | `#000000` |
+| `--accent` / `--preserve` / `--info` | `#3B71F0` |
+| `--accent-strong` | `#2554CC` |
+| `--accent-soft` / `--preserve-soft` / `--info-soft` | `#EAF0FE` |
+| `--close` / `--danger` | `#D93B3B` |
+| `--close-soft` / `--danger-soft` | `#FDECEC` |
+| `--success` | `#17A673` |
+| `--success-soft` | `#E6F7F0` |
+| `--warning` | `#C98A14` |
+| `--warning-soft` | `#FCF3E1` |
 
-| Token | Value | Source |
-|---|---|---|
-| `--canvas` | `#F5F1E8` | design.md §3, "Shell" row |
-| `--surface` | `#FFFEFB` | design.md §3, "Paper" row |
-| `--surface-muted` | `#EEE8DE` | design.md §3 |
-| `--surface-strong` | `#E4DDD1` | design.md §3 |
-| `--border` | `#D8D0C4` | design.md §3 |
-| `--border-strong` | `#BEB4A7` | design.md §3 |
-| `--ink` | `#1C1B1A` | design.md §3, "Ink" row |
-| `--ink-secondary` | `#55504A` | design.md §3 |
-| `--ink-muted` | `#7C756D` | design.md §3 |
-| `--brand` | `#382F42` | design.md §3, "Plum" row |
-| `--brand-strong` | `#2B2433` | design.md §3 |
-| `--close` | `#E76545` | design.md §3, "Close" row |
-| `--close-soft` | `#FAE3DA` | design.md §3 |
-| `--preserve` | `#7182DD` | design.md §3, "Preserve" row |
-| `--preserve-soft` | `#E9ECFB` | design.md §3 |
-| `--success` | `#2F7A5D` | design.md §3, "Success" row |
-| `--warning` | `#B67A24` | design.md §3 |
-| `--danger` | `#B64B48` | design.md §3 |
-| `--info` | `#5D6FC6` | design.md §3 |
+Note the source system itself collapses `close`/`danger` and `preserve`/`accent`/`info` into
+identical values — it isn't a richer palette than it looks, several "semantic" names are aliases
+of the same hex.
 
 ## Bellstate semantic layer (this project's own mapping)
 
-Bellstate's facet states (PRD §3.2-§3.6) don't correspond to Closure Ledger's Close/Preserve
-concepts, so each mapping below is reasoned independently, not inherited:
-
 | Token | Maps to | Why |
 |---|---|---|
-| `--status-regular` | `--success` | A regular, open, trading-normally session is the "everything's fine" state — the same role `success` plays in the source system. |
-| `--status-extended` | `--preserve` | Extended sessions are real and valid, just thinner-liquidity — "this is legitimately active, with a caveat," the same role `preserve` plays for justified-but-conditional access. |
-| `--status-auction` | `--warning` | An auction is a transitional, time-sensitive state (price not yet set) — matches `warning`'s "time-sensitive/pending" role exactly (design.md §3 rule). |
-| `--status-closed` | `--ink-muted` | Scheduled closure is informational, not urgent — a neutral metadata tone, not a status color at all. |
-| `--status-halted` | `--danger` | An asset-specific halt blocks trading — matches `danger`'s "failed or harmful state" role. |
-| `--status-venue-halted` | `--close` | A venue-wide halt is the most severe market state (§11.3's severity order ranks it above everything) — reserved the system's other strong accent color, distinct from asset-level `danger`, to be visually distinguishable at a glance. |
-| `--status-price-limited` | `--warning` | Trading continues but is constrained — time-sensitive/conditional, same role as auction. |
-| `--status-unknown` | `--border-strong` | Direct reuse of design.md §6's own rule: "unresolved/unknown uses dashed neutral line + explicit label" — the single most direct match in the whole system, since Bellstate's own philosophy (§3.3: "a wrong transition time is worse than none") is the same instinct that rule encodes. |
+| `--status-regular` | `--success` | The "everything's fine" state. |
+| `--status-extended` | `--accent` | Legitimately active with a caveat (thinner liquidity) — same role `accent`/`info` plays for "notable but not alarming." |
+| `--status-auction` | `--warning` | Transitional, time-sensitive, price not yet set. |
+| `--status-closed` | `--ink-muted` | Scheduled closure is informational, not a status color at all. |
+| `--status-halted` | `--danger` | An asset-specific halt blocks trading. |
+| `--status-venue-halted` | `--brand-strong` (pure black) | The most severe market state (§11.3's severity order ranks it above everything). The source palette uses the *same* hex for `close` and `danger`, so reusing it here would make venue-wide and asset-level halts visually indistinguishable — `brand-strong` is reserved instead so the severity ordering stays visible. This is the one place Bellstate's mapping had to diverge from a straight value-for-value copy, and it's because the source system itself has fewer distinct "bad" colors than Bellstate needs, not a stylistic choice. |
+| `--status-price-limited` | `--warning` | Constrained but still trading — same time-sensitive role as auction. |
+| `--status-unknown` | `--border-strong` | Neutral, structural — an unresolved state shown as a muted outline rather than a color claiming to mean something. |
 
-## Geometry, spacing, typography, motion
+## Geometry, typography, motion, gradients
 
-Copied verbatim from design.md §4 (type scale, families), §7 (radii, borders, shadows, spacing
-scale) and §11 (motion timings/easing) — these are generic system mechanics (how big is a
-control radius, how fast does a transition run), not brand-specific decisions, so no Bellstate
-adaptation was needed.
+Copied verbatim from the real `tailwind.config.ts`: border radii (`control` 10px, `panel` 16px,
+`large` 20px, `card` 24px, `sheet` 28px, `pill` 999px), shadows (`card`, `floating`, `soft`,
+`focus`), the 248px rail width, motion timings, and the three gradient definitions
+(`hero-panel`, `panel-soft`, `accent-deep`) used on marketing/hero surfaces only. Font families
+(Instrument Sans / IBM Plex Mono via `next/font/google`) match exactly, including weights.
+
+## Icons
+
+The source app's sidebar icons are its own specific SVG assets (`/brand/icons/*.svg`) — literal
+files belonging to that product, not reused here. They're drawn in a standard style (24px
+viewBox, 1.5 stroke width, round caps/joins) that reads as the Lucide icon set's visual
+language; Bellstate uses `lucide-react` directly for the same look without copying another
+product's specific asset files.
 
 ## Not yet done
 
-Icon style, component-level composition (buttons, tables, cards) and actual per-screen layout
-are still gated by G15 — this file covers *tokens*, not screens. `packages/ui`'s
-`labels.ts`/`copyDeck.ts`/`severity.ts` (the data/states/flows layer §11.1 step 10 permits
-building without images) are already implemented and tested; `apps/web` itself is not yet
-scaffolded.
+Per-screen pixel-accurate layout and the Playwright visual-regression suite (§11.1 step 8) —
+this file covers tokens, not screens.
