@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="text-sm text-ink-secondary">
         That symbol, venue or page isn&apos;t tracked by Bellstate.
       </p>
-      <Link href="/" className="text-sm font-medium text-brand underline">
+      <Link href="/board" className="text-sm font-medium text-brand underline">
         Back to the Board
       </Link>
     </main>

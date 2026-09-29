@@ -1,9 +1,9 @@
 import { compareBySeverity, formatVenueTime, PROGRAM_LIFECYCLE_LABELS, PRIMARY_LEG_LABELS, VALUATION_LABELS, VALUATION_NOT_PROVIDED_LABEL } from "@winsznx/bellstate-ui";
 import type { Mic } from "@winsznx/bellstate-calendars";
-import { InterruptionChip, SessionChip } from "../_components/StatusChip";
-import { VenueTile } from "../_components/VenueTile";
+import { InterruptionChip, SessionChip } from "../../_components/StatusChip";
+import { VenueTile } from "../../_components/VenueTile";
 import { BOARD_ROWS } from "./fixtures";
-import { supabaseServerClient } from "./lib/supabase";
+import { supabaseServerClient } from "../lib/supabase";
 
 // Forces this page to fetch fresh on every request instead of Next statically prerendering it
 // once at build time — the whole point of reading venues from Supabase is that it can change

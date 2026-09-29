@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
  * data/wallet integration not wired up yet.
  */
 const NAV = [
-  { href: "/", label: "Board", icon: LayoutGrid },
+  { href: "/board", label: "Board", icon: LayoutGrid },
   { href: "/watch", label: "Watch", icon: Radio },
   { href: "/replay", label: "Replays", icon: Activity },
   { href: "/developers", label: "Developers", icon: Code2 },
@@ -32,13 +32,13 @@ export function GlobalSidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-rail shrink-0 flex-col justify-between overflow-y-auto p-4 pb-[18px] pt-6">
       <div>
-        <Link href="/" className="flex items-center px-2.5 pb-[22px] pt-1.5">
+        <Link href="/board" className="flex items-center px-2.5 pb-[22px] pt-1.5">
           <span className="text-lg font-semibold tracking-tight text-ink">Bellstate</span>
         </Link>
 
         <nav className="flex flex-col gap-[3px]" aria-label="Main navigation">
           {NAV.map((item) => {
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const Icon = item.icon;
             return (
               <Link
@@ -60,7 +60,7 @@ export function GlobalSidebar() {
 
         <div className="pt-5">
           <Link
-            href="/"
+            href="/board"
             className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-pill bg-brand text-sm font-medium text-white transition-colors duration-fast hover:bg-brand-strong"
           >
             <span aria-hidden>+</span> Star an asset

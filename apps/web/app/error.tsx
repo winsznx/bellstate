@@ -18,7 +18,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
         >
           Try again
         </button>
-        <a href="/" className="rounded-control border border-border px-4 py-2 text-sm text-ink-secondary">
+        <a href="/board" className="rounded-control border border-border px-4 py-2 text-sm text-ink-secondary">
           Back to the Board
         </a>
       </div>
