@@ -4,6 +4,7 @@ internal/
 !.env.example
 node_modules/
 .next/
+.open-next/
 .turbo/
 .wrangler/
 .dev.vars

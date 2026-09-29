@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@winsznx/bellstate-calendars": "workspace:*",
@@ -26,6 +28,8 @@
     "typescript": "^5.7.3",
     "tailwindcss": "^3.4.17",
     "postcss": "^8.4.49",
-    "autoprefixer": "^10.4.20"
+    "autoprefixer": "^10.4.20",
+    "@opennextjs/cloudflare": "^1.0.0",
+    "wrangler": "^4.119.0"
   }
 }
