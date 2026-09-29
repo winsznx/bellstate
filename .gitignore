@@ -6,6 +6,8 @@ node_modules/
 .next/
 .turbo/
 .wrangler/
+.dev.vars
+.dev.vars.*
 .vercel/
 out/
 cache/
