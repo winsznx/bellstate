@@ -204,3 +204,11 @@ Run via `scripts/gates/*.ts` against X Layer mainnet (`https://rpc.xlayer.tech`)
 | G17 | **PASS** | `latestRoundData()` on Chainlink L2 Sequencer Uptime feed `0x45c2b8C204568A03Dc7A2E32B71D67Fe97F908A9` → `answer = 0` (sequencer up). |
 
 Gates still blocked on credentials not yet provided (see `internal/NEEDS.md`): G1 (Chainlink Data Streams), G8/G10 (require a deployed Worker), G2/G3/G4/G5/G6/G7/G9/G11/G14/G15 (external registries, reference images, or OKX keys). These block their dependent parts only; unrelated build continues.
+
+## 2026-09-29 — design-system correction, landing page
+
+- Discovered the first frontend token/shell pass (`packages/ui/tokens.css`, `apps/web/tailwind.config.ts`, `GlobalSidebar.tsx`) was built from `~/closeout/internal/brand/design.md`, a markdown doc that turned out to be stale — the real Closeout app's shipped `globals.css`/`tailwind.config.ts` use a different palette entirely (white/gray/black-pill/blue-accent, not warm coral/periwinkle), confirmed by that project's own `tailwind.config.ts` comment documenting the deliberate override.
+- Ran Closeout locally (`npx next dev -p 3500`), screenshotted its real landing page and product shell, read its real `product.css`, `NavRail.tsx`, `Button.tsx` in full, and rebuilt Bellstate's tokens, Tailwind config, `GlobalSidebar`, and `(site)/layout.tsx` shell against those real values instead of the doc. Also fixed a leftover `shadow-elevated` -> `shadow-card` reference in `VenueTile`/`FacetCard` from the same wrong source.
+- Added `lucide-react` for sidebar icons (matches Closeout's 24px/1.5-stroke icon visual language without copying its literal SVG brand assets).
+- Added a marketing landing page at `/welcome` — the PRD has no landing page and the Board stays at `/` per §11.2's routing table, so this is a pure addition, not a route change.
+- Verified: `pnpm -r test` (154 passing, rest skipped live-gated), `tsc --noEmit` clean, `opennextjs-cloudflare build` + `wrangler deploy`, curl-checked both `/` and `/welcome` return 200 on `https://bellstate.timjosh507.workers.dev` with expected content.
