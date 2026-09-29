@@ -1,5 +1,12 @@
 # Bellstate build log
 
+## 2026-09-29 — Frontend deployed live at bellstate.timjosh507.workers.dev
+
+- Deployed `apps/web` to Cloudflare Workers via `@opennextjs/cloudflare`, skipping Vercel entirely since Cloudflare login already works and Vercel's doesn't (internal/NEEDS.md #8 now closed — no longer needed).
+- Named "bellstate" (not "bellstate-api", the separate backend Worker) for a clean, unambiguous URL.
+- Verified in production: every route spot-checked, correct 200s and a 404 for an unknown symbol, all 7 real Supabase venues rendering on the Board, and the embed-vs-site nav boundary holding — the same checks done locally earlier in this session, now proven against the actual live deployment.
+- Both Bellstate Workers are now live: https://bellstate.timjosh507.workers.dev (frontend) and https://bellstate-api.timjosh507.workers.dev (backend API).
+
 ## 2026-09-29 — GET /v1/venues deployed and verified against real wall-clock time
 
 - First real §10.2 API endpoint, live at `https://bellstate-api.timjosh507.workers.dev/v1/venues`. Computes session/next-transition live from `packages/calendars` against Supabase's real seeded venues.
