@@ -11,7 +11,7 @@ export function FacetCard({
   notProvidedReason?: string;
 }) {
   return (
-    <div className="rounded-panel border border-border bg-surface p-4">
+    <div className="rounded-panel border border-border bg-surface p-4 shadow-elevated">
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">{title}</h3>
       {notProvidedReason ? (
         <p className="text-sm text-ink-muted">Not provided for this asset: {notProvidedReason}</p>

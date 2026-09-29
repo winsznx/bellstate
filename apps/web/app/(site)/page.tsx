@@ -73,7 +73,9 @@ export default async function BoardPage() {
               session={representative?.market.session ?? "UNKNOWN"}
               nextTransition={representative ? formatVenueTime(representative.market.nextScheduledTransition, v.mic, false) : "—"}
               openHalts={rowsForVenue.filter((r) => r.market.interruption === "ASSET_HALTED").length}
-              sourceHealthy={representative?.market.interruption !== "UNKNOWN"}
+              sourceHealth={
+                !representative ? "unknown" : representative.market.interruption === "UNKNOWN" ? "degraded" : "healthy"
+              }
             />
           );
         })}
@@ -105,9 +107,9 @@ export default async function BoardPage() {
           URL-query round-trip the spec requires, not built yet. */}
       <section aria-label="Filters" className="mb-4 flex items-center gap-3">
         <input
-          type="search"
+          type="text"
           placeholder="Search symbol, name, ISIN or token address"
-          className="w-full max-w-md rounded-control border border-border bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted"
+          className="w-full max-w-md rounded-control border border-border bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted disabled:cursor-not-allowed disabled:opacity-60"
           disabled
         />
         <span className="text-xs text-ink-muted">Filters not yet wired — static snapshot only</span>
