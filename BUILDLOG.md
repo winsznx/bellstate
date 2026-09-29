@@ -1,5 +1,13 @@
 # Bellstate build log
 
+## 2026-09-29 — First real Cloudflare Worker deployment, live on the public internet
+
+- User ran `wrangler login` — confirmed via `wrangler whoami`. This unblocks every Worker deploy (signer, aggregator, indexer, notifier, watch, api).
+- Deployed `apps/api` for real as proof: `wrangler.jsonc` + a minimal Hono `/health` endpoint, live at `https://bellstate-api.timjosh507.workers.dev`. Secrets set via `wrangler secret put`, not baked into the bundle.
+- Verified for real: curled the deployed URL directly (not `wrangler dev`) and confirmed a genuine Supabase round trip plus the correct CORS header from the real response.
+- This is the first piece of Bellstate's offchain infrastructure running anywhere outside a local test or a direct database connection — the actual Cloudflare edge network, publicly reachable.
+- Full workspace: 210 tests passing.
+
 ## 2026-09-29 — apps/api webhooks logic, verified against real Supabase
 
 - Full §10.5 webhook logic: URL validation (SSRF protections — private IP/CGNAT/metadata rejection for IPv4 and IPv6), HMAC secret signing/verification, filter matching, and real Supabase-backed CRUD.
