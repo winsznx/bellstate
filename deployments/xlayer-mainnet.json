@@ -1,0 +1,65 @@
+{
+  "chainId": 196,
+  "network": "X Layer mainnet",
+  "deployedAt": "2026-09-30",
+  "deployer": "0xc2d695d3865cB5407be2809Edbd0c489CA842a32",
+  "owner": "0xc2d695d3865cB5407be2809Edbd0c489CA842a32",
+  "operator": "0xdb67D5a77D807362Aa787C67F83d692a96C132d5",
+  "signers": [
+    "0x4805E8D5B091977461Bd6d10EE8B723DF6ef0faD",
+    "0x239c3f39039Ad891968F94E7476d9c9e2886201F",
+    "0xA883b9dBA614e639BD4818d2Fc4ed459Eb80767b"
+  ],
+  "quorum": 2,
+  "notes": "Owner is deployer EOA, not a Safe, for hackathon stage — no contract change needed to upgrade later (BellstateHub owner_ is a plain AccessControl DEFAULT_ADMIN_ROLE address). Upgrade path: hub.grantRole(DEFAULT_ADMIN_ROLE, safeAddress) then revoke on the EOA.",
+  "contracts": {
+    "BellstateHub": "0x714bF088613729949A2dA92709e25c1Af95c1B1B",
+    "StatusAdapterImplementation": "0xF67e5dF4AaB93eA0Ad483D0ec04d96f774A6C948",
+    "AdapterFactory": "0x3aaddB01B88Cf968c1a0424699867B424D33cd5e",
+    "HookDeployer": "0x9a87a8d364814a82d7DF0189e4DfbF06fbA4Cdd3",
+    "HaltGateHook": "0x6947A925F77A8D343626830567195429aF3EE080",
+    "LendingGuard": "0x36bc3B3F8FD38cfbF0821003d6fffdE301Dcf79A",
+    "PrintGuard": "0x26fC945187902cB7FeBD0493D1DC4C6fd2C24DcA",
+    "PolicyLens": "0x41ec37e8D2db1D59626eF66250418Fad6534ceEf"
+  },
+  "assets": {
+    "NVDAx": {
+      "referenceListing": "XNAS:NVDA",
+      "listingId": "0x598fc09e1497adeff415fd9bfd7d342d656b7ba862bc7da90dc6ca99bd1c0049",
+      "programKey": "xstocks:NVDAx",
+      "programId": "0xbd00c4f725e0e91af8cd1cd8c4ec4dfd3ae5c9ebd779309538932e2c073a950b",
+      "rawToken": "0xc845b2894dBddd03858fd2D643B4eF725fE0849d",
+      "rawAdapter": "0xeD0666f53D6592C749d8eC362b2900105879B55A",
+      "wrappedToken": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
+      "wrappedAdapter": "0xA8Db8B90a6cf773Edc16Ebef3Dd2B4d20379B40E",
+      "poolEligible": "wrapped only"
+    }
+  },
+  "verifiedOnchain": {
+    "method": "getBytecode on every address + readContract round trips",
+    "checks": [
+      "quorum() == 2",
+      "AdapterFactory holds OPERATOR_ROLE on the hub",
+      "wrapped adapter .asset()/.programId()/.kind()/.hub() match deploy params",
+      "wrapped adapter supportsInterface(IReferenceMarketStatus) == true",
+      "wrapped adapter supportsInterface(IReferenceValuationStatus) == false (no stream designated, correct per ERC-8392 opt-in design)"
+    ]
+  },
+  "firstAttestation": {
+    "txHash": "0x6706693c27e828824dd05f612242c22dad6e5f2b437270f9394c3f8f018a274b",
+    "submittedBy": "0x6d90E94b559dB05226920061E4da82d3FBd5Ff7b",
+    "script": "apps/signer/scripts/submit-market-update.ts",
+    "signedBy": [
+      "0x239c3f39039Ad891968F94E7476d9c9e2886201F",
+      "0x4805E8D5B091977461Bd6d10EE8B723DF6ef0faD"
+    ],
+    "source": "Real live Nasdaq Trade Halt RSS + NYSE trade-halts API for NVDA, fetched at submission time (0 open halts found), and packages/calendars' real session calendar for XNAS.",
+    "result": {
+      "session": "CLOSED (4)",
+      "interruption": "NONE (1)",
+      "seq": 1,
+      "stale": false
+    },
+    "verifiedVia": "referenceMarketStatus() called directly on the NVDAx wrapped adapter (0xA8Db8B90a6cf773Edc16Ebef3Dd2B4d20379B40E) after the tx confirmed — not just the hub's internal marketView, the actual ERC-8392 surface a consumer contract would call."
+  }
+}
