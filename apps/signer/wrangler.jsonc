@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bellstate-signer",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "durable_objects": {
+    "bindings": [
+      { "name": "US_HALTS", "class_name": "UsHaltsDO" },
+      { "name": "CHAIN", "class_name": "ChainDO" },
+      { "name": "CORE", "class_name": "CoreDO" }
+    ]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UsHaltsDO", "ChainDO", "CoreDO"] }],
+  "triggers": { "crons": ["* * * * *"] },
+  "env": {
+    "a": { "name": "signer-a" },
+    "b": { "name": "signer-b" },
+    "c": { "name": "signer-c" }
+  }
+}

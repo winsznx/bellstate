@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bellstate-notifier",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "queues": {
+    "consumers": [
+      {
+        "queue": "bellstate-events",
+        "max_batch_size": 10,
+        "max_retries": 3,
+        "dead_letter_queue": "bellstate-events-dlq"
+      }
+    ]
+  }
+}

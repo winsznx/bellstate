@@ -18,6 +18,37 @@ importers:
         specifier: ^2.56.9
         version: 2.56.9(bufferutil@4.1.0)(typescript@7.0.2)(utf-8-validate@5.0.10)(zod@4.6.5)
 
+  apps/aggregator:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.47.10
+        version: 2.117.2
+      '@winsznx/bellstate-protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
+      hono:
+        specifier: ^4.6.14
+        version: 4.13.11
+      viem:
+        specifier: ^2.56.9
+        version: 2.56.9(bufferutil@4.1.0)(typescript@7.0.2)(utf-8-validate@5.0.10)(zod@4.6.5)
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20260930.1
+        version: 5.20260930.1
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.4
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.4)(terser@5.16.9)
+      wrangler:
+        specifier: ^4.119.0
+        version: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+
   apps/api:
     dependencies:
       '@supabase/supabase-js':
@@ -41,7 +72,7 @@ importers:
         version: 2.1.9(@types/node@22.20.4)(terser@5.16.9)
       wrangler:
         specifier: ^4.119.0
-        version: 4.143.0(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        version: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
 
   apps/indexer:
     dependencies:
@@ -64,6 +95,31 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.4)(terser@5.16.9)
+
+  apps/notifier:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.47.10
+        version: 2.117.2
+      hono:
+        specifier: ^4.6.14
+        version: 4.13.11
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20260930.1
+        version: 5.20260930.1
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.4
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.4)(terser@5.16.9)
+      wrangler:
+        specifier: ^4.119.0
+        version: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
 
   apps/signer:
     dependencies:
@@ -88,10 +144,16 @@ importers:
       '@winsznx/bellstate-source-xstocks':
         specifier: workspace:*
         version: link:../../packages/sources/xstocks
+      hono:
+        specifier: ^4.6.14
+        version: 4.13.11
       viem:
         specifier: ^2.56.9
         version: 2.56.9(bufferutil@4.1.0)(typescript@7.0.2)(utf-8-validate@5.0.10)(zod@4.6.5)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20260930.1
+        version: 5.20260930.1
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.4
@@ -101,6 +163,34 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.4)(terser@5.16.9)
+      wrangler:
+        specifier: ^4.119.0
+        version: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+
+  apps/watch:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.47.10
+        version: 2.117.2
+      hono:
+        specifier: ^4.6.14
+        version: 4.13.11
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20260930.1
+        version: 5.20260930.1
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.4
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.4)(terser@5.16.9)
+      wrangler:
+        specifier: ^4.119.0
+        version: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
 
   apps/web:
     dependencies:
@@ -146,7 +236,7 @@ importers:
     devDependencies:
       '@opennextjs/cloudflare':
         specifier: ^1.0.0
-        version: 1.20.7(next@15.5.26(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.143.0(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10))
+        version: 1.20.7(next@15.5.26(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.4
@@ -170,7 +260,7 @@ importers:
         version: 5.9.3
       wrangler:
         specifier: ^4.119.0
-        version: 4.143.0(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        version: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
 
   packages/calendars:
     devDependencies:
@@ -636,6 +726,9 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
+
+  '@cloudflare/workers-types@5.20260930.1':
+    resolution: {integrity: sha512-ZUHwK/kG4GD6owwHY+Le+QYq/LO+R0f8b51cE3+IXe4bcKefKWIVYYqsUrKwSTo9su1LSIxKEfqui4r7LrxU1Q==}
 
   '@coinbase/cdp-sdk@1.57.0':
     resolution: {integrity: sha512-SaOlyVgJzaIuuA+r2e+OEcQA2ncFyUT1sAGCqqAxXHQQxwOcea8N2r4NnnBAde0V0EEhDonJonuPBQFE0TBzmw==}
@@ -5975,6 +6068,8 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260926.1':
     optional: true
 
+  '@cloudflare/workers-types@5.20260930.1': {}
+
   '@coinbase/cdp-sdk@1.57.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@solana-program/system': 0.10.0(@solana/kit@5.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))
@@ -6933,7 +7028,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opennextjs/cloudflare@1.20.7(next@15.5.26(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.143.0(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
+  '@opennextjs/cloudflare@1.20.7(next@15.5.26(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
     dependencies:
       '@ast-grep/napi': 0.40.5
       '@dotenvx/dotenvx': 1.31.0
@@ -6945,7 +7040,7 @@ snapshots:
       glob: 12.0.0
       next: 15.5.26(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       ts-tqdm: 0.8.6
-      wrangler: 4.143.0(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      wrangler: 4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       yargs: 18.2.0
     transitivePeerDependencies:
       - encoding
@@ -11246,7 +11341,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260926.1
       '@cloudflare/workerd-windows-64': 1.20260926.1
 
-  wrangler@4.143.0(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10):
+  wrangler@4.143.0(@cloudflare/workers-types@5.20260930.1)(@types/node@22.20.4)(bufferutil@4.1.0)(utf-8-validate@5.0.10):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260926.1)
@@ -11257,6 +11352,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260926.1
     optionalDependencies:
+      '@cloudflare/workers-types': 5.20260930.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - '@types/node'

@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bellstate-aggregator",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "durable_objects": {
+    "bindings": [{ "name": "ATTESTATION_STORE", "class_name": "AttestationStore" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AttestationStore"] }]
+}

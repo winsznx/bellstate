@@ -1,0 +1,22 @@
+{
+  "name": "@winsznx/bellstate-watch",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260930.1",
+    "@types/node": "^22.10.2",
+    "typescript": "^7.0.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^4.119.0"
+  }
+}
