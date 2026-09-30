@@ -23,6 +23,7 @@ import {
 } from "./attestation.js";
 import { publicClientFor, requireHubAddress, submitterAccount, walletClientFor, xLayer, type XLayerPublicClient } from "./chain.js";
 import type { Env } from "./env.js";
+import { throttleHeartbeats } from "./heartbeatThrottle.js";
 import { hubAbi } from "./hubAbi.js";
 import { quorumCached } from "./hubReads.js";
 import { selectQuorumBatch, type AttestationRow, type QuorumBatchItem } from "./quorum.js";
@@ -163,6 +164,14 @@ export class AttestationStore extends DurableObject<Env> {
           call_kinds TEXT NOT NULL DEFAULT '[]',
           status TEXT NOT NULL,
           submitted_at INTEGER NOT NULL
+        )
+      `);
+      // PRD §6.4: "The aggregator submits at most one heartbeat per domain per 60 s." Tracks the
+      // last time a heartbeat was actually SUBMITTED (not just attested) for each domain.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS heartbeat_submissions (
+          domain TEXT PRIMARY KEY,
+          last_submitted_at INTEGER NOT NULL
         )
       `);
       return Promise.resolve();
@@ -392,8 +401,19 @@ export class AttestationStore extends DurableObject<Env> {
       });
     }
 
+    const lastHeartbeatByDomain = new Map<string, number>(
+      this.ctx.storage.sql
+        .exec<{ domain: string; last_submitted_at: number }>(`SELECT domain, last_submitted_at FROM heartbeat_submissions`)
+        .toArray()
+        .map((r) => [r.domain, r.last_submitted_at]),
+    );
+    const { eligible, supersededDigests } = throttleHeartbeats(attestationRows, lastHeartbeatByDomain, Date.now());
+    for (const digest of supersededDigests) {
+      this.ctx.storage.sql.exec(`DELETE FROM attestations WHERE digest = ? AND submission_id IS NULL`, digest);
+    }
+
     const quorum = await quorumCached(client, hubAddress);
-    const selected = selectQuorumBatch(attestationRows, quorum);
+    const selected = selectQuorumBatch(eligible, quorum);
     if (selected.length === 0) return;
 
     const resolved: ResolvedBatchItem[] = [];
@@ -448,6 +468,16 @@ export class AttestationStore extends DurableObject<Env> {
 
     for (const digest of digests) {
       this.ctx.storage.sql.exec(`UPDATE attestations SET submission_id = ? WHERE digest = ?`, inserted.id, digest);
+    }
+
+    const submittedHeartbeatDomains = new Set(resolved.filter((i) => i.kind === "Heartbeat").map((i) => i.subject));
+    for (const domain of submittedHeartbeatDomains) {
+      this.ctx.storage.sql.exec(
+        `INSERT INTO heartbeat_submissions (domain, last_submitted_at) VALUES (?, ?)
+         ON CONFLICT (domain) DO UPDATE SET last_submitted_at = excluded.last_submitted_at`,
+        domain,
+        Date.now(),
+      );
     }
 
     const supabase = createSupabaseClient(env);

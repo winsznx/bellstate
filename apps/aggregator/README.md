@@ -41,8 +41,17 @@ until they reach quorum, and submits them to BellstateHub on X Layer mainnet as 
    An inactive or unrecoverable signer gets a 400, never a stored row.
 3. The validated attestation goes to the `AttestationStore` DO (`ingest`) and, best-effort, to
    Supabase's `attestations` table.
-4. Every second, the DO's alarm calls `selectQuorumBatch` over everything not yet attached to a
-   submission. Anything that clears quorum gets grouped by facet (Market/Program/Primary/
+4. Every second, the DO's alarm first runs `throttleHeartbeats` (§6.4: "at most one heartbeat per
+   domain per 60 s") over everything not yet attached to a submission: a Heartbeat digest changes
+   every epoch (15s) even when nothing in the domain changed, so without this a heartbeat would
+   get submitted roughly every 15s per domain, forever — a real, unbounded gas cost, not a
+   theoretical one (found and fixed after a direct question about it: submitter funding at the
+   time would have run dry in hours at that rate). It keeps only the highest-epoch heartbeat
+   digest per domain (deleting older, superseded ones immediately so the table doesn't grow one
+   row per domain per epoch), and only lets that digest through once 60s have passed since the
+   last time a heartbeat for that domain was actually submitted — tracked in the DO's own
+   `heartbeat_submissions` table, not just attested. The surviving rows then go through
+   `selectQuorumBatch`; anything that clears quorum gets grouped by facet (Market/Program/Primary/
    Valuation/Heartbeat) into up to five `submit*Updates` calls, wrapped in one `submitBatch`.
 5. Fees follow the PRD exactly: `maxFeePerGas = 2 * baseFee + priorityFee`, `priorityFee = 0.001
    gwei`. The nonce is read from chain once and then owned by the DO. If a submission isn't
