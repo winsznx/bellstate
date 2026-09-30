@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 // PRD §11.1 step 4 + design/tokens.md: Instrument Sans (primary) / IBM Plex Mono (technical
 // values — IDs, timestamps), loaded via next/font per the PRD's own instruction.
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${instrumentSans.variable} ${ibmPlexMono.variable} font-sans`}>{children}</body>
+      <body className={`${instrumentSans.variable} ${ibmPlexMono.variable} font-sans`}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

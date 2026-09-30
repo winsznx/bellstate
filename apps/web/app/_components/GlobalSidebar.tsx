@@ -3,6 +3,7 @@
 import { Activity, BarChart3, Bell, Code2, LayoutGrid, Radio } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { WalletButton } from "./WalletButton";
 
 /**
  * PRD §11.2 G1, rebuilt to match the real structure of a rail this project's owner pointed at —
@@ -14,8 +15,8 @@ import { usePathname } from "next/navigation";
  * library matching the source's 24px/1.5-stroke visual language) rather than that product's own
  * specific icon SVG files.
  *
- * Search/command palette (G3), network pill (G8) and wallet button (G5) need client state/live
- * data/wallet integration not wired up yet.
+ * Search/command palette (G3) and network pill (G8) need client state/live data not wired up
+ * yet. Wallet button (G5) is real — see WalletButton.tsx.
  */
 const NAV = [
   { href: "/board", label: "Board", icon: LayoutGrid },
@@ -58,7 +59,8 @@ export function GlobalSidebar() {
           })}
         </nav>
 
-        <div className="pt-5">
+        <div className="flex flex-col gap-2 pt-5">
+          <WalletButton />
           <Link
             href="/board"
             className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-pill bg-brand text-sm font-medium text-white transition-colors duration-fast hover:bg-brand-strong"
