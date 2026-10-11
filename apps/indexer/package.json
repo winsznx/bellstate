@@ -9,7 +9,8 @@
     "scan:history": "tsx scripts/scan-hub-history.ts",
     "scan:history:okx": "tsx scripts/scan-hub-history-okx.ts",
     "publish:history": "tsx scripts/publish-hub-history.ts",
-    "seed:nvda": "tsx scripts/seed-nvda-registry.ts"
+    "seed:nvda": "tsx scripts/seed-nvda-registry.ts",
+    "seed:watch:nvda": "tsx scripts/seed-nvda-watch.ts"
   },
   "dependencies": {
     "@winsznx/bellstate-engine": "workspace:*",

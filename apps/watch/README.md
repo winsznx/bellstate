@@ -11,7 +11,7 @@ own attested venue status — never against raw source data.
   `POST https://api.hyperliquid.xyz/info` with `{"type":"metaAndAssetCtxs","dex":"xyz"}` (verified
   against the live endpoint while building this — the dex slug really is the literal string
   `"xyz"`, and its universe entries are named `xyz:<SYMBOL>`), for every market currently seeded in
-  `perp_markets`.
+  `perp_markets`. `xyz:NVDA` is mapped to the verified XNAS:NVDA listing in production.
 - **Storage.** Every polled market's `oraclePx`/`markPx` is written to `perp_snapshots` each tick.
   The 48h retention window is an existing daily `pg_cron` job
   (`packages/db/supabase/migrations/20260927150300_retention.sql`) — this worker only inserts.
@@ -19,6 +19,8 @@ own attested venue status — never against raw source data.
   sample series and decoded listing statuses — no network/DO/Supabase in that file, so a rule
   evaluated live can be re-run byte-for-byte against stored `perp_snapshots` rows later (S07's
   own "done when" condition):
+  A status whose signed `nextScheduledTransition` has passed decodes to `UNKNOWN`, so an old
+  CLOSED or HALTED observation cannot trigger a current flag.
   - `THIN_OPEN_MOVE` — |Δ oraclePx| ≥ 3% in 60s, starting inside the first 60s of a mapped
     secondary venue's `EXTENDED` session while the primary listing isn't `REGULAR`.
   - `CLOSED_MOVE` — |Δ| ≥ 3% in 60s while every listing mapped to the market is `CLOSED`.

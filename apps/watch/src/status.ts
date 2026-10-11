@@ -60,6 +60,13 @@ export function decodeMarketStatus(row: StatusCurrentRecord | undefined, listing
   const sessionIndex = toFiniteInt(row.record.session);
   const interruptionIndex = toFiniteInt(row.record.interruption);
   const sessionSince = toFiniteInt(row.record.sessionSince);
+  const nextScheduledTransition = toFiniteInt(row.record.nextScheduledTransition);
+
+  // A signed observation does not establish the session after its next scheduled transition.
+  // Suppress flags until a fresh attestation arrives, as the Board does for stale status.
+  if (nextScheduledTransition !== null && nextScheduledTransition > 0 && nextScheduledTransition <= Date.now() / 1000) {
+    return { listingId, session: "UNKNOWN", interruption: "UNKNOWN", sessionSince: UNKNOWN_SESSION_SINCE };
+  }
 
   const session = sessionIndex !== null ? SESSIONS[sessionIndex] : undefined;
   const interruption = interruptionIndex !== null ? INTERRUPTIONS[interruptionIndex] : undefined;
