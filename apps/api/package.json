@@ -13,7 +13,8 @@
     "@supabase/supabase-js": "^2.47.10",
     "@winsznx/bellstate-calendars": "workspace:*",
     "@winsznx/bellstate-protocol": "workspace:*",
-    "hono": "^4.6.14"
+    "hono": "^4.6.14",
+    "viem": "^2.56.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
