@@ -1,10 +1,9 @@
 import { AssetIcon } from "../../../_components/AssetIcon";
-import { notFound } from "next/navigation";
 import type { Mic } from "@winsznx/bellstate-calendars";
 import { marketSentence } from "@winsznx/bellstate-ui";
-import { getAssetDetail } from "../../asset/[symbol]/fixtures";
+import { loadAssetDetail } from "../../asset/[symbol]/data";
 
-// PRD §11.5 S05. Status banner reuses the real marketSentence + fixture data (same as S02).
+// PRD §11.5 S05. Status banner reads indexed market status.
 // Swap card, reference lines, "why this fee?", wrap/unwrap and wallet connect all need a
 // deployed HaltGate pool and wallet integration (Permit2, UniversalRouter) — none of which
 // exist yet (no hub/pools deployed, no funded wallets). Renders the PRD's own "No HaltGate pool
@@ -12,14 +11,14 @@ import { getAssetDetail } from "../../asset/[symbol]/fixtures";
 
 export default async function TradePage({ params }: { params: Promise<{ symbol: string }> }) {
   const { symbol } = await params;
-  const asset = getAssetDetail(symbol);
-  if (!asset) notFound();
+  const { asset, error } = await loadAssetDetail(symbol);
+  if (error || !asset) return <main className="mx-auto max-w-[600px] px-6 py-8 text-sm text-ink-secondary">{error ?? "Asset not tracked."}</main>;
 
   return (
     <main className="mx-auto max-w-[600px] px-6 py-8">
       <h1 className="mb-2 flex items-center gap-3 text-2xl font-semibold text-ink"><AssetIcon symbol={asset.symbol} size={36} />Trade {asset.symbol}</h1>
       <p className="mb-6 text-sm text-ink-secondary">
-        {marketSentence({ venue: asset.venueName, symbol: asset.symbol, mic: asset.mic as Mic, state: asset.market })}
+        {asset.market && asset.mic ? marketSentence({ venue: asset.venueName ?? asset.mic, symbol: asset.symbol, mic: asset.mic as Mic, state: asset.market }) : "Market status has not been indexed."}
       </p>
       <div className="rounded-panel border border-dashed border-border-strong bg-surface p-6 text-sm text-ink-muted">
         No HaltGate pool yet. Swaps, wrap/unwrap and wallet connect need a deployed pool and

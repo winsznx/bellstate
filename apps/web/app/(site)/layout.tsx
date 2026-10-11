@@ -12,9 +12,9 @@ import { GlobalSidebar } from "../_components/GlobalSidebar";
  */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-shell-bg text-[14px] text-ink">
+    <div className="flex min-h-screen min-w-0 flex-col bg-shell-bg text-[14px] text-ink md:flex-row">
       <GlobalSidebar />
-      <div className="my-3 mr-3 flex min-h-[calc(100vh-24px)] min-w-0 flex-1 flex-col overflow-hidden rounded-[22px] bg-white shadow-card">
+      <div className="flex min-h-[calc(100vh-64px)] min-w-0 flex-1 flex-col overflow-hidden bg-white md:my-3 md:mr-3 md:min-h-[calc(100vh-24px)] md:rounded-[22px] md:shadow-card">
         <div className="flex-1">{children}</div>
         <GlobalFooter />
       </div>

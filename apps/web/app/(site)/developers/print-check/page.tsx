@@ -1,6 +1,5 @@
 // PRD §11.5 S12. Form fields and the two real presets from the PRD are built. "Pay and run"
-// needs x402 (OKX Web3 API keys, gate G11 — blocked, see internal/NEEDS.md) and a wallet
-// connection, neither wired — the button renders the PRD's own "wallet not connected" state.
+// needs the paid API route and wallet payment flow, neither of which is wired here.
 
 const PRESETS = [
   {
@@ -25,7 +24,7 @@ export default function PrintCheckPage() {
   return (
     <main className="mx-auto max-w-[700px] px-6 py-8">
       <h1 className="mb-2 text-3xl font-semibold text-ink">Print Check console</h1>
-      <p className="mb-6 text-sm text-ink-secondary">Run the paid print check with a real x402 payment.</p>
+      <p className="mb-6 text-sm text-ink-secondary">The paid print check is not available in this app yet. The examples below show the planned inputs.</p>
 
       <div className="mb-6 flex flex-wrap gap-2">
         {PRESETS.map((p) => (
@@ -64,11 +63,11 @@ export default function PrintCheckPage() {
           disabled
           className="w-full rounded-control bg-surface-strong px-4 py-2 text-sm font-medium text-ink-muted"
         >
-          Wallet not connected
+          Pay and run unavailable
         </button>
         <p className="text-xs text-ink-muted">
-          Requires x402 payment (0.002 USDT0) and a connected wallet — x402 isn&apos;t wired yet
-          (blocked on OKX Web3 API credentials, gate G11).
+          The print-check API route and wallet payment flow are not connected. No payment can be
+          made from this page.
         </p>
       </form>
     </main>

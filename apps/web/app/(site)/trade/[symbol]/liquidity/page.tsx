@@ -1,13 +1,12 @@
 import { AssetIcon } from "../../../../_components/AssetIcon";
-import { notFound } from "next/navigation";
-import { getAssetDetail } from "../../../asset/[symbol]/fixtures";
+import { loadAssetDetail } from "../../../asset/[symbol]/data";
 
 /** PRD §11.5 S06. Same "no pool yet" reality as S05 — needs a deployed HaltGate pool and
  * PositionManager reads, neither exist yet. */
 export default async function LiquidityPage({ params }: { params: Promise<{ symbol: string }> }) {
   const { symbol } = await params;
-  const asset = getAssetDetail(symbol);
-  if (!asset) notFound();
+  const { asset, error } = await loadAssetDetail(symbol);
+  if (error || !asset) return <main className="mx-auto max-w-[600px] px-6 py-8 text-sm text-ink-secondary">{error ?? "Asset not tracked."}</main>;
 
   return (
     <main className="mx-auto max-w-[600px] px-6 py-8">

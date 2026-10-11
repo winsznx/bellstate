@@ -1,31 +1,21 @@
 import Link from "next/link";
-import { REPLAYS } from "./fixtures";
+import { supabaseServerClient } from "../lib/supabase";
 
-/** PRD §11.5 S08. */
-export default function ReplaysPage() {
-  const published = REPLAYS.filter((r) => r.published);
+export const dynamic = "force-dynamic";
+
+export default async function ReplaysPage() {
+  const db = supabaseServerClient();
+  const result = db ? await db.from("replays").select("slug,title,summary,venue_mics,starts_at,ends_at").eq("published", true).order("starts_at", { ascending: false }) : null;
   return (
-    <main className="mx-auto max-w-[900px] px-6 py-8">
+    <main className="mx-auto max-w-[900px] min-w-0 px-4 py-6 sm:px-6 sm:py-8">
       <h1 className="mb-6 text-3xl font-semibold text-ink">Replays</h1>
-      <div className="space-y-4">
-        {published.map((r) => (
-          <Link
-            key={r.slug}
-            href={`/replay/${r.slug}`}
-            className="block rounded-panel border border-border bg-surface p-4 hover:bg-surface-muted"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-ink">{r.title}</h2>
-              <span className="font-mono text-xs text-ink-muted">{r.date}</span>
-            </div>
-            <p className="mt-1 text-sm text-ink-secondary">{r.summary}</p>
-            <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted">
-              <span>{r.venues.join(" · ")}</span>
-              <span>{r.keyFigure}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {!db ? <p className="text-sm text-ink-secondary">Replay data is unavailable in this environment.</p> : result?.error ? <p className="text-sm text-ink-secondary">Could not load replays. Try again later.</p> : !result?.data?.length ? <p className="text-sm text-ink-secondary">No published replays yet.</p> : <div className="space-y-4">{result.data.map((replay) => (
+        <Link key={replay.slug} href={`/replay/${encodeURIComponent(replay.slug)}`} className="block rounded-panel border border-border bg-surface p-4 hover:bg-surface-muted">
+          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-semibold text-ink">{replay.title}</h2><time className="font-mono text-xs text-ink-muted" dateTime={replay.starts_at}>{new Date(replay.starts_at).toLocaleDateString()}</time></div>
+          {replay.summary && <p className="mt-1 text-sm text-ink-secondary">{replay.summary}</p>}
+          <p className="mt-2 text-xs text-ink-muted">{replay.venue_mics.join(" · ")}</p>
+        </Link>
+      ))}</div>}
     </main>
   );
 }

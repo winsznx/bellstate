@@ -1,13 +1,13 @@
-// PRD §11.5 S16 — SIWE + operator allowlist. "Not an operator -> 403" is the correct state here
-// since no wallet connect / SIWE / operator allowlist exists yet.
+// PRD §11.5 S16 — this route remains unavailable until SIWE and operator authorization exist.
 
 export default function OpsPage() {
   return (
-    <main className="mx-auto flex max-w-[600px] flex-col items-start gap-4 px-6 py-24">
-      <h1 className="text-2xl font-semibold text-ink">403 — Operators only</h1>
-      <p className="text-sm text-ink-secondary">
-        This console needs SIWE sign-in and an operator allowlist, neither of which are wired up
-        yet (no deployed hub, no Safe, no API service).
+    <main className="mx-auto flex w-full max-w-[700px] flex-col items-start gap-4 px-5 py-14 sm:px-8 sm:py-20">
+      <h1 className="text-3xl font-semibold text-ink">Operator console</h1>
+      <p className="max-w-[560px] text-sm leading-6 text-ink-secondary">
+        Operator access is not available in the web app yet. The hub is deployed, but wallet
+        sign-in, operator authorization and the API routes for reviewing and recording actions
+        are not connected. No operator actions can be submitted from this page.
       </p>
     </main>
   );

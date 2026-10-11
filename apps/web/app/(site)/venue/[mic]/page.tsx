@@ -2,17 +2,12 @@ import { notFound } from "next/navigation";
 import type { Mic } from "@winsznx/bellstate-calendars";
 import { dayWindows, resolveSessionWindow, TIMEZONE_BY_MIC, upcomingSpecialDays } from "@winsznx/bellstate-calendars";
 import { formatVenueTime, SESSION_LABELS } from "@winsznx/bellstate-ui";
-import Link from "next/link";
-import { AssetIcon } from "../../../_components/AssetIcon";
 import { SessionChip } from "../../../_components/StatusChip";
-import { haltsTodayFor, sourceHealthyFor } from "./fixtures";
 import { supabaseServerClient } from "../../lib/supabase";
 
 // PRD §11.5 S03. Regions 1-3 (clock/session, today's session bar, special days) are computed
-// live from packages/calendars — genuinely real, not fixture data. The venue display name is
-// read live from Supabase's seeded `venues` table (scripts/seed/venues.sql), falling back to
-// this map if Supabase isn't configured. Regions 4-6 (halts today, source health, cross-check
-// drift) need live source polling, fixture-backed for now.
+// live from packages/calendars from the venue calendar. The venue display name is
+// read from Supabase's venues table. Halt and source-health regions use stored observations.
 
 const VENUE_NAMES: Record<Mic, string> = {
   XNAS: "Nasdaq",
@@ -42,8 +37,17 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
   const current = resolveSessionWindow(mic, now);
   const windows = dayWindows(mic, now);
   const specialDays = upcomingSpecialDays(mic, now, 60);
-  const halts = haltsTodayFor(mic);
-  const sourceHealthy = sourceHealthyFor(mic);
+  const db = supabaseServerClient();
+  const [{ data: recentHalts, error: haltsError }, { data: health, error: healthError }] = db ? await Promise.all([
+    db.from("halt_events").select("id,listing_id,reason_code,halt_at,resume_trade_at,source").eq("family", mic === "XHKG" ? "HK" : mic === "XKRX" || mic === "NXTE" ? "KR" : "US").gte("halt_at", new Date((now - 36 * 3600) * 1000).toISOString()).order("halt_at", { ascending: false }),
+    db.from("source_health").select("source,last_ok_at,last_error_at").in("source", mic === "XHKG" ? ["hkex"] : mic === "XKRX" || mic === "NXTE" ? ["kind"] : ["nasdaq", "nyse"]),
+  ]) : [{ data: null, error: null }, { data: null, error: null }];
+  const halts = (recentHalts ?? []).filter((halt) => isSameDay(new Intl.DateTimeFormat("en-CA", { timeZone: TIMEZONE_BY_MIC[mic] }).format(new Date(halt.halt_at)), mic, now));
+  const listingIds = halts.map((halt) => halt.listing_id).filter((id): id is string => Boolean(id));
+  const { data: listings } = db && listingIds.length ? await db.from("listings").select("listing_id,mic,symbol").in("listing_id", listingIds).eq("mic", mic) : { data: null };
+  const listingById = new Map((listings ?? []).map((listing) => [listing.listing_id, listing]));
+  const visibleHalts = halts.filter((halt) => halt.listing_id && listingById.has(halt.listing_id));
+  const sourceState = !db || healthError || !health?.length || health.every((item) => !item.last_ok_at || Date.parse(item.last_ok_at) < Date.now() - 5 * 60_000) ? "unknown" : health.some((item) => item.last_error_at && (!item.last_ok_at || item.last_error_at > item.last_ok_at)) ? "degraded" : "healthy";
 
   const isHalfDayToday = specialDays.some((d) => d.type === "half" && isSameDay(d.dateKey, mic, now));
   const isHolidayToday = specialDays.some((d) => d.type === "closed" && isSameDay(d.dateKey, mic, now));
@@ -52,11 +56,11 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
   const dayLength = 86_400;
 
   return (
-    <main className="mx-auto max-w-[1000px] px-6 py-8">
+    <main className="mx-auto max-w-[1000px] min-w-0 px-4 py-6 sm:px-6 sm:py-8">
       <header className="mb-6 border-b border-border pb-6">
         <div className="text-xs uppercase tracking-wide text-ink-muted">{mic}</div>
         <h1 className="mt-1 text-3xl font-semibold text-ink">{venueName}</h1>
-        <div className="mt-3 flex items-center gap-4">
+        <div className="mt-3 flex flex-wrap items-center gap-4">
           <SessionChip session={current.session} />
           <span className="text-sm text-ink-muted">
             Next transition: {formatVenueTime(current.nextScheduledTransition, mic, false)}
@@ -70,9 +74,7 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
             Early close {formatVenueTime(windows.find((w) => w.session !== "CLOSED")?.nextScheduledTransition ?? now, mic, false)}
           </p>
         ) : null}
-        {!sourceHealthy ? (
-          <p className="mt-3 rounded-control bg-close-soft px-3 py-2 text-sm text-close">Halt source unreachable</p>
-        ) : null}
+        <p className="mt-3 text-sm text-ink-secondary">Halt source: {sourceState === "unknown" ? "no health data" : sourceState === "degraded" ? "latest check failed" : "latest check succeeded"}</p>
       </header>
 
       {/* Region 2: today's session bar */}
@@ -128,24 +130,19 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
       {/* Region 4: halts today */}
       <section aria-label="Halts today" className="mb-8 border-t border-border pt-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">Halts today</h2>
-        {halts.length === 0 ? (
-          <p className="text-sm text-ink-muted">No halts today.</p>
+        {!db || haltsError ? (
+          <p className="text-sm text-ink-muted">Halt data is unavailable.</p>
+        ) : visibleHalts.length === 0 ? (
+          <p className="text-sm text-ink-muted">No mapped halts recorded for this venue today.</p>
         ) : (
           <ul className="space-y-2 text-sm">
-            {halts.map((h) => (
-              <li key={h.symbol} className="flex items-center justify-between border-b border-border pb-2">
-                <span className="flex items-center gap-2">
-                  {h.tracked ? <AssetIcon symbol={`${h.symbol}x`} size={28} /> : null}
-                  {h.tracked ? (
-                    <Link href={`/asset/${h.symbol}x`} className="font-medium text-brand underline">
-                      {h.symbol}
-                    </Link>
-                  ) : (
-                    <span className="text-ink-secondary">{h.symbol}</span>
-                  )}
-                  <span className="text-ink-muted">{h.reasonCode}</span>
+            {visibleHalts.map((h) => (
+              <li key={h.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
+                <span className="flex flex-wrap items-center gap-2">
+                  {listingById.get(h.listing_id)?.symbol ? <span className="font-medium">{listingById.get(h.listing_id)?.symbol}</span> : <span className="text-ink-secondary">Unmapped listing</span>}
+                  <span className="text-ink-muted">{h.reason_code ?? "Reason unavailable"}</span>
                 </span>
-                <span className="text-xs text-ink-muted">{formatVenueTime(h.haltAt, mic)}</span>
+                <span className="text-xs text-ink-muted">{formatVenueTime(Math.floor(Date.parse(h.halt_at) / 1000), mic)} · {h.resume_trade_at ? "Resumed" : "Open"}</span>
               </li>
             ))}
           </ul>

@@ -2,9 +2,10 @@
 
 import { BrandWordmark } from "./BrandMark";
 
-import { Activity, BarChart3, Bell, Code2, LayoutGrid, Radio } from "lucide-react";
+import { Activity, BarChart3, Bell, Code2, LayoutGrid, Menu, Radio, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { WalletButton } from "./WalletButton";
 
 /**
@@ -17,8 +18,7 @@ import { WalletButton } from "./WalletButton";
  * library matching the source's 24px/1.5-stroke visual language) rather than that product's own
  * specific icon SVG files.
  *
- * Search/command palette (G3) and network pill (G8) need client state/live data not wired up
- * yet. Wallet button (G5) is real — see WalletButton.tsx.
+ * Wallet button (G5) is implemented in WalletButton.tsx.
  */
 const NAV = [
   { href: "/board", label: "Board", icon: LayoutGrid },
@@ -31,45 +31,97 @@ const NAV = [
 
 export function GlobalSidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const drawer = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    closeButton.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        menuButton.current?.focus();
+      } else if (event.key === "Tab" && drawer.current) {
+        const focusable = Array.from(drawer.current.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"));
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  const nav = (onNavigate?: () => void) => (
+    <nav className="flex flex-col gap-[3px]" aria-label="Main navigation">
+      {NAV.map((item) => {
+        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
+            className={`flex min-h-[46px] items-center gap-[13px] rounded-[12px] px-3.5 py-2.5 text-sm transition-colors duration-fast ${
+              active ? "bg-white font-semibold text-ink shadow-soft" : "text-ink-secondary hover:bg-white/70 hover:text-ink"
+            }`}
+          >
+            <Icon size={20} className={active ? "opacity-100" : "opacity-75"} aria-hidden />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
+  const actions = (onNavigate?: () => void) => (
+    <div className="flex flex-col gap-2 pt-5">
+      <WalletButton />
+      <Link href="/board" onClick={onNavigate} className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-pill bg-brand text-sm font-medium text-white transition-colors duration-fast hover:bg-brand-strong">
+        Browse assets
+      </Link>
+    </div>
+  );
 
   return (
-    <aside className="sticky top-0 flex h-screen w-rail shrink-0 flex-col justify-between overflow-y-auto p-4 pb-[18px] pt-6">
+    <>
+    <header className="flex h-16 items-center justify-between border-b border-black/[0.08] px-4 md:hidden">
+      <Link href="/board" aria-label="Bellstate Board"><BrandWordmark /></Link>
+      <button ref={menuButton} type="button" aria-label="Open navigation" aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(true)} className="grid h-11 w-11 place-items-center rounded-xl text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+        <Menu size={23} aria-hidden />
+      </button>
+    </header>
+    {open && (
+      <div className="fixed inset-0 z-50 md:hidden">
+        <button type="button" className="absolute inset-0 bg-ink/40" aria-label="Close navigation" onClick={() => setOpen(false)} />
+        <aside ref={drawer} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Navigation" className="relative flex h-full w-[min(320px,calc(100vw-48px))] flex-col overflow-y-auto bg-shell-bg p-4 shadow-card">
+          <div className="mb-5 flex items-center justify-between">
+            <BrandWordmark />
+            <button ref={closeButton} type="button" aria-label="Close navigation" onClick={() => { setOpen(false); menuButton.current?.focus(); }} className="grid h-11 w-11 place-items-center rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"><X size={22} aria-hidden /></button>
+          </div>
+          {nav(() => setOpen(false))}
+          {actions(() => setOpen(false))}
+          <Link href="/method" onClick={() => setOpen(false)} className="mt-auto pt-8 text-sm font-medium text-ink-secondary">Read the methodology ↗</Link>
+        </aside>
+      </div>
+    )}
+    <aside className="sticky top-0 hidden h-screen w-rail shrink-0 flex-col justify-between overflow-y-auto p-4 pb-[18px] pt-6 md:flex">
       <div>
         <Link href="/board" className="flex items-center px-2.5 pb-[22px] pt-1.5">
           <BrandWordmark />
         </Link>
 
-        <nav className="flex flex-col gap-[3px]" aria-label="Main navigation">
-          {NAV.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={`flex min-h-[46px] items-center gap-[13px] rounded-[12px] px-3.5 py-2.5 text-sm transition-colors duration-fast ${
-                  active
-                    ? "bg-white font-semibold text-ink shadow-soft"
-                    : "text-ink-secondary hover:bg-white/70 hover:text-ink"
-                }`}
-              >
-                <Icon size={20} className={active ? "opacity-100" : "opacity-75"} aria-hidden />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex flex-col gap-2 pt-5">
-          <WalletButton />
-          <Link
-            href="/board"
-            className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-pill bg-brand text-sm font-medium text-white transition-colors duration-fast hover:bg-brand-strong"
-          >
-            <span aria-hidden>+</span> Star an asset
-          </Link>
-        </div>
+        {nav()}
+        {actions()}
       </div>
 
       <div>
@@ -91,5 +143,6 @@ export function GlobalSidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
