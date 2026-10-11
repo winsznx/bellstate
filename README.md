@@ -22,16 +22,17 @@ Built for SIMAN LABS SuperStar 2026 — RWA track, X Layer mainnet (chain 196).
 ### Try it
 
 1. Open the [Board](https://bellstate.timjosh507.workers.dev/board) to search the live xStocks issuer catalog for X Layer tokens. Issuer listings and calendar sessions are labeled separately from Bellstate status.
-2. Open [NVDAx](https://bellstate.timjosh507.workers.dev/asset/NVDAx) for the deployed adapter's direct X Layer reading, or call [`GET /v1/status/NVDAx`](https://bellstate-api.timjosh507.workers.dev/v1/status/NVDAx). An `UNKNOWN` or stale response is the correct result when attestations have not been refreshed.
+2. Open [NVDAx](https://bellstate.timjosh507.workers.dev/asset/NVDAx) for the deployed adapter's direct X Layer reading and indexed attestation history, or call [`GET /v1/status/NVDAx`](https://bellstate-api.timjosh507.workers.dev/v1/status/NVDAx). An `UNKNOWN` or stale response is the correct result when attestations have not been refreshed.
 3. Open [Watch](https://bellstate.timjosh507.workers.dev/watch) for live public Hyperliquid xyz perp quotes. Bellstate's own mappings and flags are identified separately.
 4. Try the [free Print Check preview](https://bellstate.timjosh507.workers.dev/developers/print-check) with the historical SK hynix examples, and read the [source-linked replay case study](https://bellstate.timjosh507.workers.dev/replay/jul-28-2026-sk-hynix). Both explain the evidence they do and do not use.
-5. Use [Network](https://bellstate.timjosh507.workers.dev/network) for live service reachability, and [Developers](https://bellstate.timjosh507.workers.dev/developers) for deployed addresses and contract reads.
+5. Use [Venue](https://bellstate.timjosh507.workers.dev/venue/XNAS) for live calendar calculations and the NYSE public halt feed. Public reports are labeled separately from Bellstate attestations.
+6. Use [Network](https://bellstate.timjosh507.workers.dev/network) for live service reachability, onchain status freshness and submitter balance, and [Developers](https://bellstate.timjosh507.workers.dev/developers) for deployed addresses and contract reads.
 
 ### Current state
 
-Eight core contracts are deployed on X Layer mainnet. NVDAx is registered and has a historical quorum-signed attestation ([transaction](https://www.oklink.com/xlayer/tx/0x6706693c27e828824dd05f612242c22dad6e5f2b437270f9394c3f8f018a274b)). The API, aggregator, notifier, watch, and three signer Workers are deployed. The frontend and API are deployed on Cloudflare Workers. The public database has seven venues; its asset, status, replay-frame, and watch-event tables are not yet populated.
+Eight core contracts are deployed on X Layer mainnet. NVDAx is registered and has 246 historical quorum-signed market updates, recovered from transaction receipts and indexed in the public database. The database also has its verified listing, program, two token records and seven venues. The API, aggregator, notifier, watch, and three signer Workers are deployed. The frontend and API are deployed on Cloudflare Workers. Replay-frame and watch-event tables are not yet populated.
 
-The submitter wallet currently lacks enough OKB to keep publishing onchain updates. Existing signed status therefore ages into `UNKNOWN`. The issuer catalog, calendar calculations, public perp quotes, guard reads, and offchain Print Check preview remain usable without new onchain transactions. These sources do not substitute for signed attestation.
+The submitter wallet currently lacks enough OKB to keep publishing onchain updates. Existing signed status therefore ages into `UNKNOWN`. A receipt audit also found 524 failed submissions caused by stale sequence retries; the aggregator now prunes stale attestations and checks the chain sequence before sending. The issuer catalog, calendar calculations, public halt feed, public perp quotes, guard reads, and offchain Print Check preview remain usable without new onchain transactions. These sources do not substitute for signed attestation.
 
 Chainlink Data Streams valuation is disabled. Both the original and regenerated local credential pairs failed the mainnet API with HTTP 401 (the latest response was `user does not exist`); account activation and feed entitlement remain unverified. Chainlink's documented feed subscriptions are paid. No valuation stream is designated, so no valuation status is advertised.
 
@@ -44,7 +45,7 @@ apps/
   web        Next.js 15 frontend (deployed)
   api        Hono backend on Cloudflare Workers (deployed)
   signer     Halt/session state machines, EIP-712 signing (three Workers deployed)
-  indexer    Hub event decoding (built, not yet deployed)
+  indexer    Hub event decoding and verified recovery scripts (continuous worker not yet deployed)
   aggregator Fan-in for signer submissions (deployed)
   notifier   Alert delivery — Telegram, webhooks (deployed)
   watch      Oracle Watch monitoring Worker (deployed)

@@ -9,7 +9,7 @@ import {
   VALUATION_LABELS,
 } from "@winsznx/bellstate-ui";
 import { FacetCard } from "../../../_components/FacetCard";
-import { loadAssetDetail } from "./data";
+import { loadAssetDetail, loadMarketHistory } from "./data";
 import { loadOnchainStatus } from "../../lib/onchainStatus";
 
 export const dynamic = "force-dynamic";
@@ -24,9 +24,10 @@ export default async function AssetPage({
   params: Promise<{ symbol: string }>;
 }) {
   const { symbol } = await params;
-  const [{ asset, error }, onchain] = await Promise.all([
+  const [{ asset, error }, onchain, history] = await Promise.all([
     loadAssetDetail(symbol),
     symbol.toLowerCase() === "nvdax" ? loadOnchainStatus() : Promise.resolve(null),
+    loadMarketHistory(symbol),
   ]);
   if (error || !asset)
     return (
@@ -199,9 +200,27 @@ export default async function AssetPage({
           />
         </div>
       </section>
-      <section className="border-t border-border pt-6 text-sm text-ink-muted">
-        Timeline, halt history, guards, pools, integration and subscriptions are
-        not available on this page yet.
+      <section aria-labelledby="history-heading" className="border-t border-border pt-6">
+        <h2 id="history-heading" className="text-lg font-semibold text-ink">Onchain attestation history</h2>
+        <p className="mt-1 text-sm text-ink-secondary">Past BellstateHub market updates on X Layer. These records show what was attested then; the current effective state is shown above and may now be unknown or stale.</p>
+        {history.error ? <p role="alert" className="mt-4 text-sm text-ink-secondary">{history.error}</p> : history.items.length === 0 ? <p className="mt-4 text-sm text-ink-muted">No market attestations have been indexed for this asset.</p> : (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[580px] border-collapse text-left text-sm">
+              <thead><tr className="border-b border-border text-xs text-ink-muted"><th className="py-2 pr-4">Included onchain</th><th className="py-2 pr-4">Sequence</th><th className="py-2 pr-4">Attested session</th><th className="py-2 pr-4">Interruption</th><th className="py-2 pr-4">Evidence</th></tr></thead>
+              <tbody>{history.items.map((item) => <tr key={item.id} className="border-b border-border">
+                <td className="py-3 pr-4 text-ink-secondary">{new Date(item.includedAt ?? item.indexedAt).toLocaleString()}{!item.includedAt && <span className="block text-xs text-ink-muted">Indexed time</span>}</td>
+                <td className="py-3 pr-4 font-mono text-xs">{item.seq}</td>
+                <td className="py-3 pr-4">{SESSION_LABELS[item.session]}</td>
+                <td className="py-3 pr-4">{item.interruption}</td>
+                <td className="py-3 pr-4"><a href={`/event/${item.id}`} className="text-ink-secondary underline underline-offset-2">Event</a>{item.txHash && <a href={`https://www.oklink.com/xlayer/tx/${item.txHash}`} target="_blank" rel="noopener noreferrer" className="ml-3 text-ink-secondary underline underline-offset-2">Transaction</a>}</td>
+              </tr>)}</tbody>
+            </table>
+            <p className="mt-3 text-xs text-ink-muted">Showing the latest {history.items.length} indexed market updates. Source: BellstateHub transaction logs.</p>
+          </div>
+        )}
+      </section>
+      <section className="mt-8 border-t border-border pt-6 text-sm text-ink-muted">
+        Halt history, guards, pools, integration and subscriptions are not available on this page yet.
       </section>
     </main>
   );

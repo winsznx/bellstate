@@ -15,6 +15,7 @@ import {
 } from "@winsznx/bellstate-engine";
 import { supabaseServerClient } from "../../lib/supabase";
 import { loadCatalogAsset, type CatalogAsset } from "../../lib/xstocksCatalog";
+import deployment from "../../../../../../deployments/xlayer-mainnet.json";
 
 type Facet = "market" | "program" | "primary" | "valuation";
 type Status = {
@@ -38,6 +39,55 @@ const seconds = (value: unknown) => {
   return Number.isFinite(number) && number >= 0 ? number : 0;
 };
 const SOURCE_STATUSES = ["UNKNOWN", "OPEN", "CLOSED"] as const;
+
+export interface MarketHistoryItem {
+  id: string;
+  seq: number;
+  session: MarketState["session"];
+  interruption: MarketState["interruption"];
+  includedAt: string | null;
+  indexedAt: string;
+  txHash: string | null;
+  blockNumber: number | null;
+}
+
+export async function loadMarketHistory(symbol: string): Promise<{ items: MarketHistoryItem[]; error: string | null }> {
+  const client = supabaseServerClient();
+  if (!client) return { items: [], error: "History is not configured in this environment." };
+  const deployedListingId = symbol.toLowerCase() === "nvdax" ? deployment.assets.NVDAx.listingId : null;
+  const program = deployedListingId ? null : await client
+    .from("programs")
+    .select("reference_listing_id")
+    .ilike("symbol", symbol)
+    .maybeSingle();
+  if (program?.error) return { items: [], error: "Could not load attestation history." };
+  const listingId = deployedListingId ?? program?.data?.reference_listing_id;
+  if (!listingId) return { items: [], error: null };
+  const { data, error } = await client
+    .from("status_history")
+    .select("id,seq,record,t_included,t_indexed,tx_hash,block_number")
+    .eq("facet", "market")
+    .eq("subject_id", listingId.toLowerCase())
+    .order("seq", { ascending: false })
+    .limit(20);
+  if (error) return { items: [], error: "Could not load attestation history." };
+  return {
+    error: null,
+    items: (data ?? []).map((row) => {
+      const record = row.record as Record<string, unknown>;
+      return {
+        id: row.id,
+        seq: row.seq,
+        session: select(SESSIONS, record.session, "UNKNOWN"),
+        interruption: select(INTERRUPTIONS, record.interruption, "UNKNOWN"),
+        includedAt: row.t_included,
+        indexedAt: row.t_indexed,
+        txHash: row.tx_hash,
+        blockNumber: row.block_number,
+      };
+    }),
+  };
+}
 
 export interface AssetDetail {
   source: "issuer catalog" | "indexed";
