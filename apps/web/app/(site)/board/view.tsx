@@ -20,6 +20,13 @@ import type { BoardSnapshot } from "./data";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+const artworkCatalog = [
+  { symbol: "NVDAx", artwork: "Token artwork" },
+  { symbol: "SKHYx", artwork: "Token artwork" },
+  { symbol: "TCENTx", artwork: "Token artwork" },
+  { symbol: "CTNTx", artwork: "Company artwork" },
+] as const;
+
 export function BoardView({ initial }: { initial: BoardSnapshot }) {
   const [snapshot, setSnapshot] = useState(initial);
   const [search, setSearch] = useState("");
@@ -340,6 +347,30 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
               : "No tracked assets are available yet."}
           </p>
         )}
+      </section>
+      <section aria-labelledby="artwork-catalog-heading" className="mb-10">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2 border-b border-border pb-3">
+          <div>
+            <h2 id="artwork-catalog-heading" className="text-base font-semibold text-ink">
+              Asset artwork
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+              Sourced token and company artwork. The table above shows only programs available in the live index.
+            </p>
+          </div>
+          <span className="text-xs text-ink-muted">4 sourced images</span>
+        </div>
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {artworkCatalog.map(({ symbol, artwork }) => (
+            <li key={symbol} className="flex items-center gap-4 rounded-control border border-border bg-surface px-4 py-4">
+              <AssetIcon symbol={symbol} size={48} />
+              <div className="min-w-0">
+                <span className="block text-sm font-semibold text-ink">{symbol}</span>
+                <span className="block text-xs text-ink-muted">{artwork} · Status unavailable</span>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
       <section aria-label="Live feed">
         <h2 className="mb-2 text-sm font-semibold text-ink-secondary">
