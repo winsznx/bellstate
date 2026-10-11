@@ -1,5 +1,5 @@
 /** PRD §11.5 S02 region 2: "Four facet cards (Market, Valuation, Primary, Program). Each shows
- * the ERC-8392 values plus as-of, since, next transition or expected resumption, and its source
+ * the proposed ERC-8391 values plus as-of, since, next transition or expected resumption, and its source
  * link." Source-link / "Read onchain eth_call" toggle needs a live adapter, not built yet. */
 export function FacetCard({
   title,

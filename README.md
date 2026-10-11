@@ -3,10 +3,10 @@
 **An onchain market-status oracle for tokenized US, HK and KR equities.**
 
 Onchain stocks trade around the clock. The real markets behind them do not. Bellstate reads
-the venues' own published halt feeds and session calendars directly, has three independent
-signers attest the result with a 2-of-3 EIP-712 quorum, and writes it to a hub contract on X
-Layer that any token, pool hook, or lending market can read through a standard interface
-(ERC-8392). It never predicts a status. It only observes and signs one.
+the venues' own published halt feeds and session calendars directly, has three signer instances
+attest the result with a 2-of-3 EIP-712 quorum, and writes it to a hub contract on X
+Layer that any token, pool hook, or lending market can read through a proposed interface
+([ERC-8391 draft](https://github.com/ethereum/ERCs/pull/1964)). It never predicts a status. It only observes and signs one.
 
 Built for SIMAN LABS SuperStar 2026 — RWA track, X Layer mainnet (chain 196).
 

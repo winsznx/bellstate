@@ -44,9 +44,9 @@ export default function DevelopersPage() {
         </dl>
       </section>
 
-      <section aria-label="ERC-8392 reference" className="mb-10">
+      <section aria-label="ERC-8391 draft reference" className="mb-10">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">
-          ERC-8392 reference
+          <a href="https://github.com/ethereum/ERCs/pull/1964" target="_blank" rel="noopener noreferrer" className="underline">ERC-8391 draft reference</a>
         </h2>
         <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
           <div>
