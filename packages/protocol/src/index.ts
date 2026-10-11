@@ -9,3 +9,4 @@ export { signMessage } from "./sign.js";
 export { privateKeyToAccount } from "viem/accounts";
 export { recoverSigner, sortSignaturesByRecoveredAddress } from "./verify.js";
 export * from "./build.js";
+export { encryptWebhookSecret, decryptWebhookSecret, signWebhookPayload } from "./webhookSecret.js";

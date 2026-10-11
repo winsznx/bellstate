@@ -12,6 +12,7 @@ import { deliverWebhook } from "./webhookDelivery.js";
 export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
+  WEBHOOK_ENCRYPTION_KEY: string;
   TELEGRAM_BOT_TOKEN: string;
   /** Verifies Telegram's incoming webhook calls — consumed by apps/api's Telegram webhook
    * receiver (PRD §8.4: "the Telegram webhook (§10)"), not by this Worker, which only ever
@@ -148,12 +149,13 @@ interface SubscriptionRow {
   filters: NotifierFilters;
   status: string;
   consecutive_failures: number;
+  secret_ciphertext: string | null;
 }
 
 async function fetchActiveSubscriptions(supabase: SupabaseClient): Promise<SubscriptionRow[]> {
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("id, channel, owner, target, filters, status, consecutive_failures")
+    .select("id, channel, owner, target, filters, status, consecutive_failures, secret_ciphertext")
     .eq("status", "active")
     .returns<SubscriptionRow[]>();
 
@@ -291,7 +293,9 @@ async function deliverToSubscription(
           sub.owner.startsWith("tg:") ? sub.owner.slice(3) : sub.owner,
           await buildTelegramText(supabase, event, venueNameCache),
         )
-      : await deliverWebhook(sub.target, event, event.id);
+      : sub.secret_ciphertext
+        ? await deliverWebhook(sub.target, event, event.id, sub.secret_ciphertext, sub.id, env.WEBHOOK_ENCRYPTION_KEY)
+        : { ok: false, error: "webhook secret unavailable; recreate subscription" };
   const latencyMs = Date.now() - start;
 
   const retryAfterSeconds = outcome.retryAfterSeconds;

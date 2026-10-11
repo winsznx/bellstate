@@ -12,7 +12,7 @@ project.
 - `src/filters.ts` — `{types, symbols, mics, families}` matching: AND across groups, empty group
   means all (§10.5).
 - `src/webhooksService.ts` — real Supabase-backed CRUD: create (re-validates the URL, generates
-  and hashes the secret), list (never returns the secret or its hash), delete, and test delivery
+  and hashes and encrypts the secret), list (never returns the secret, hash or ciphertext), delete, and test delivery
   (real HTTP POST with `redirect: "manual"`, records every attempt to `deliveries`).
 
 ## Verified against the real thing, not a mock
@@ -29,14 +29,15 @@ something a normal `pnpm test` run should touch a shared database for:
 RUN_LIVE_TESTS=1 SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... pnpm --filter @winsznx/bellstate-api test:live
 ```
 
-## A real gap, documented rather than worked around
+## Webhook encryption rollout
 
-`testWebhook` can't currently sign a real test delivery correctly: the secret is stored only as
-a SHA-256 hash (by design, per §10.5 — "returned once, then stored as a hash"), so there's
-nothing to recover and sign with at test-delivery time. A real deployment needs a deliberate
-answer to this (e.g., a short-lived KV entry holding the secret right after creation, expiring
-before the "returned once" guarantee is meaningfully broken) — not implemented here, and not
-faked by weakening the hash-only storage rule to make the test conveniently pass.
+Apply `20261011120000_webhook_secret_ciphertext.sql` before deploying API or notifier. Set the
+same `WEBHOOK_ENCRYPTION_KEY` secret on both Workers: a stable base64-encoded 32-byte random key.
+The old hash remains for comparison, while AES-256-GCM ciphertext permits real delivery HMACs.
+Keep this key backed up securely; losing it makes existing webhooks undecryptable. Existing
+hash-only subscriptions are disabled by the migration and owners must recreate them. Key
+rotation needs re-encryption before changing the Worker secret. The live integration test now
+requires this migration and key; it has not been rerun against production.
 
 ## Not yet built
 

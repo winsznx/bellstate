@@ -24,21 +24,12 @@ Telegram and webhook subscriptions, with a `GET /health` liveness check.
   `sendTelegramMessage`/`deliverWebhook` exercised against an injected fake `fetch` (success, 429,
   non-2xx, network error, and a real 10s-timeout abort using fake timers) — no real network calls.
 
-## The webhook signature gap (real, not papered over)
+## Webhook signatures
 
-PRD §10.5 requires a `Bellstate-Signature: t=<unix>,v1=<hex(hmac_sha256(secret, ...))>` header.
-Computing that HMAC needs the subscription's **plaintext** secret. `apps/api`'s `createWebhook`
-(`apps/api/src/webhooksService.ts`) only ever stores `secret_hash = sha256(secret)` — a one-way
-hash, exactly per §10.5's own "Secret. Returned once, then stored as a SHA-256 hash." A one-way
-hash cannot produce an HMAC any real subscriber could verify. Signing with the hash as if it were
-the secret would produce a signature that looks well-formed and is silently wrong for every
-subscriber — worse than no signature at all. This was already found and documented in a previous
-session (`BUILDLOG.md`, "apps/api webhooks logic, verified against real Supabase").
-
-`deliverWebhook` sends `Bellstate-Event-Id` (needs no secret) but **omits**
-`Bellstate-Signature`, with a comment on that exact line in `src/webhookDelivery.ts`. The real
-fix is on the storage side — an encrypted, recoverable secret column instead of a one-way hash —
-and is out of scope for this Worker (`apps/api` was off-limits for this task).
+Apply the API README's webhook migration and set the same `WEBHOOK_ENCRYPTION_KEY` secret on
+both Workers before deployment. Notifier decrypts each subscription secret and signs the exact
+outgoing JSON body. Legacy hash-only subscriptions are disabled by the migration and must be
+recreated. A missing or invalid key fails delivery closed.
 
 ## Deferred (PRD is bigger than one pass; here's exactly what's left and why)
 
@@ -82,12 +73,13 @@ already delivered to successfully on an earlier attempt. Before delivering to a 
 
 ## Environment variables
 
-Cross-checked against `.env.example` (all five already present; none added by this pass):
+Cross-checked against `.env.example`:
 
 | Variable | Used by this Worker? |
 |---|---|
 | `SUPABASE_URL` | Yes — reads `subscriptions`/`venues`, writes `deliveries`/`subscriptions`. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes — same as above. |
+| `WEBHOOK_ENCRYPTION_KEY` | Yes — decrypts outgoing webhook signing secrets. |
 | `TELEGRAM_BOT_TOKEN` | Yes — `sendTelegramMessage`'s outbound `sendMessage` calls. |
 | `TELEGRAM_WEBHOOK_SECRET` | No — verifies Telegram's *incoming* webhook, owned by `apps/api`'s Telegram webhook receiver (PRD §8.4), not this outbound-only Worker. Kept in `Env` for documentation. |
 | `OPS_TELEGRAM_CHAT_ID` | No — PRD §8.8's cross-cutting ops-alert chat (DLQ non-empty, source unhealthy, etc.), a separate concern from §8.5's routing/delivery job this Worker implements. Kept in `Env` for documentation. |

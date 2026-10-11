@@ -1,3 +1,5 @@
+import { decryptWebhookSecret, signWebhookPayload } from "@winsznx/bellstate-protocol";
+
 export interface WebhookDeliveryResult {
   ok: boolean;
   httpStatus?: number;
@@ -13,24 +15,15 @@ const WEBHOOK_TIMEOUT_MS = 10_000;
 /**
  * Delivers one event to one webhook subscription's target URL.
  *
- * ARCHITECTURE GAP (documented, not worked around): PRD §10.5 requires a
- * `Bellstate-Signature: t=<unix>,v1=<hex(hmac_sha256(secret, t + "." + rawBody))>` header. Computing
- * that HMAC needs the subscription's *plaintext* secret. But apps/api's `createWebhook` (see
- * apps/api/src/webhooksService.ts) only ever stores `secret_hash = sha256(secret)` — a one-way
- * hash, per PRD §10.5's own "Secret. Returned once, then stored as a SHA-256 hash." A one-way
- * hash cannot produce an HMAC any real subscriber could verify; signing with the hash *as if* it
- * were the secret would produce a signature that looks well-formed and is silently wrong for
- * every subscriber, which is worse than sending no signature at all. This is a real,
- * previously-documented gap (BUILDLOG.md, "apps/api webhooks logic, verified against real
- * Supabase"), not something this pass invents or should paper over. The fix is on the storage
- * side (an encrypted, recoverable secret column instead of a one-way hash) and is out of scope
- * here — apps/api is off-limits for this task. Until then, `Bellstate-Signature` is omitted
- * below; `Bellstate-Event-Id` is still sent since it needs no secret.
+ * The encrypted secret is decrypted only for the outgoing request and never logged.
  */
 export async function deliverWebhook(
   url: string,
   payload: unknown,
   eventId: string,
+  secretCiphertext: string,
+  subscriptionId: string,
+  encryptionKey: string,
   fetchFn: typeof fetch = fetch,
 ): Promise<WebhookDeliveryResult> {
   const rawBody = JSON.stringify(payload);
@@ -38,6 +31,7 @@ export async function deliverWebhook(
   const timeout = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
 
   try {
+    const secret = decryptWebhookSecret(secretCiphertext, subscriptionId, encryptionKey);
     const response = await fetchFn(url, {
       method: "POST",
       redirect: "manual",
@@ -45,7 +39,7 @@ export async function deliverWebhook(
       headers: {
         "Content-Type": "application/json",
         "Bellstate-Event-Id": eventId,
-        // Bellstate-Signature intentionally omitted — see the gap documented above this function.
+        "Bellstate-Signature": signWebhookPayload(secret, Math.floor(Date.now() / 1000), rawBody),
       },
       body: rawBody,
     });

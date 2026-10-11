@@ -14,6 +14,7 @@ const RUN = process.env.RUN_LIVE_TESTS === "1";
 const describeIfLive = RUN ? describe : describe.skip;
 
 const OWNER = "0x0000000000000000000000000000000000dead" as const;
+const ENCRYPTION_KEY = process.env.WEBHOOK_ENCRYPTION_KEY ?? "";
 
 describeIfLive("webhooks service — real Supabase project", () => {
   // `describe.skip`'s callback body still runs at collection time (only the `it`s inside are
@@ -37,7 +38,7 @@ describeIfLive("webhooks service — real Supabase project", () => {
   });
 
   it("rejects creating a webhook with a private-IP target before ever touching the database", async () => {
-    const result = await createWebhook(supabase, OWNER, "https://localhost/hook", {});
+    const result = await createWebhook(supabase, OWNER, "https://localhost/hook", {}, ENCRYPTION_KEY);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe("PRIVATE_IP");
 
@@ -48,7 +49,7 @@ describeIfLive("webhooks service — real Supabase project", () => {
   it("creates a real row, lists it back without the secret, then deletes it", async () => {
     const created = await createWebhook(supabase, OWNER, "https://httpbin.org/status/200", {
       types: ["halt.opened"],
-    });
+    }, ENCRYPTION_KEY);
     expect(created.ok).toBe(true);
     if (!created.ok) return;
     expect(created.secret).toMatch(/^whsec_[0-9a-f]{48}$/);
@@ -68,11 +69,11 @@ describeIfLive("webhooks service — real Supabase project", () => {
   }, 20_000);
 
   it("test delivery makes a real HTTP round trip and records it to `deliveries`", async () => {
-    const created = await createWebhook(supabase, OWNER, "https://httpbin.org/status/200", {});
+    const created = await createWebhook(supabase, OWNER, "https://httpbin.org/status/200", {}, ENCRYPTION_KEY);
     expect(created.ok).toBe(true);
     if (!created.ok) return;
 
-    const result = await testWebhook(supabase, OWNER, created.id);
+    const result = await testWebhook(supabase, OWNER, created.id, ENCRYPTION_KEY);
     expect("error" in result && result.error === "NOT_FOUND").toBe(false);
     if ("httpStatus" in result) {
       expect(result.httpStatus).toBe(200);

@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { randomUUID } from "node:crypto";
+import { decryptWebhookSecret, encryptWebhookSecret, signWebhookPayload } from "@winsznx/bellstate-protocol";
 import { checkWebhookUrl } from "./webhookUrl.js";
-import { generateWebhookSecret, hashWebhookSecret, signWebhookPayload } from "./webhookSignature.js";
+import { generateWebhookSecret, hashWebhookSecret } from "./webhookSignature.js";
 import type { WebhookFilters } from "./filters.js";
 
 export interface CreateWebhookResult {
@@ -20,6 +22,7 @@ export async function createWebhook(
   owner: `0x${string}`,
   url: string,
   filters: WebhookFilters,
+  encryptionKey: string,
 ): Promise<CreateWebhookResult | CreateWebhookRejection> {
   const urlCheck = await checkWebhookUrl(url);
   if (!urlCheck.ok) {
@@ -27,14 +30,18 @@ export async function createWebhook(
   }
 
   const secret = generateWebhookSecret();
+  const id = randomUUID();
+  const secretCiphertext = encryptWebhookSecret(secret, id, encryptionKey);
   const { data, error } = await supabase
     .from("subscriptions")
     .insert({
+      id,
       channel: "webhook",
       owner,
       target: url,
       filters,
       secret_hash: hashWebhookSecret(secret),
+      secret_ciphertext: secretCiphertext,
       status: "active",
     })
     .select("id")
@@ -95,17 +102,20 @@ export async function testWebhook(
   supabase: SupabaseClient,
   owner: `0x${string}`,
   id: string,
+  encryptionKey: string,
   fetchFn: typeof fetch = fetch,
 ): Promise<TestWebhookResult | { ok: false; error: "NOT_FOUND" }> {
   const { data: sub, error: fetchError } = await supabase
     .from("subscriptions")
-    .select("id, target, secret_hash")
+    .select("id, target, secret_ciphertext")
     .eq("id", id)
     .eq("owner", owner)
     .eq("channel", "webhook")
     .maybeSingle();
 
   if (fetchError || !sub) return { ok: false, error: "NOT_FOUND" };
+  if (!sub.secret_ciphertext) return { ok: false, latencyMs: 0, error: "SECRET_UNAVAILABLE" };
+  const secret = decryptWebhookSecret(sub.secret_ciphertext as string, id, encryptionKey);
 
   const urlCheck = await checkWebhookUrl(sub.target as string);
   const eventId = `evt_test_${Date.now()}`;
@@ -123,10 +133,6 @@ export async function testWebhook(
   if (!urlCheck.ok) {
     error = `url rejected: ${urlCheck.rejection}`;
   } else {
-    // The secret is stored only as a hash and can't be recovered here to sign a real test
-    // delivery — a real deployment keeps a lookup path for this (e.g. a KV of id -> secret at
-    // creation, or re-prompting the owner). This gap is intentional and documented rather than
-    // worked around by weakening the "secret is hashed, shown once" rule.
     try {
       const response = await fetchFn(sub.target as string, {
         method: "POST",
@@ -134,7 +140,7 @@ export async function testWebhook(
         headers: {
           "Content-Type": "application/json",
           "Bellstate-Event-Id": eventId,
-          "Bellstate-Signature": signWebhookPayload("placeholder-until-secret-lookup-exists", Math.floor(Date.now() / 1000), body),
+          "Bellstate-Signature": signWebhookPayload(secret, Math.floor(Date.now() / 1000), body),
         },
         body,
       });

@@ -2,7 +2,7 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
 
 /** PRD §10.5: "Secret. Returned once, then stored as a SHA-256 hash." */
 export function generateWebhookSecret(): string {
-  return `whsec_${randomBytes(24).toString("hex")}`;
+  return `whsec_${Buffer.from(randomBytes(24)).toString("hex")}`;
 }
 
 export function hashWebhookSecret(secret: string): string {
