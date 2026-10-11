@@ -1,23 +1,28 @@
 import deployment from "../../../../../deployments/xlayer-mainnet.json";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const dynamic = "force-dynamic";
 
 const services = [
-  { name: "API", url: "https://bellstate-api.timjosh507.workers.dev/health" },
-  { name: "Aggregator", url: "https://bellstate-aggregator.timjosh507.workers.dev/health" },
-  { name: "Notifier", url: "https://bellstate-notifier.timjosh507.workers.dev/health" },
-  { name: "Watch", url: "https://bellstate-watch.timjosh507.workers.dev/health" },
-  { name: "Signer A", url: "https://signer-a.timjosh507.workers.dev/health" },
-  { name: "Signer B", url: "https://signer-b.timjosh507.workers.dev/health" },
-  { name: "Signer C", url: "https://signer-c.timjosh507.workers.dev/health" },
+  { name: "API", binding: "API", url: "https://bellstate-api.timjosh507.workers.dev/health" },
+  { name: "Aggregator", binding: "AGGREGATOR", url: "https://bellstate-aggregator.timjosh507.workers.dev/health" },
+  { name: "Notifier", binding: "NOTIFIER", url: "https://bellstate-notifier.timjosh507.workers.dev/health" },
+  { name: "Watch", binding: "WATCH", url: "https://bellstate-watch.timjosh507.workers.dev/health" },
+  { name: "Signer A", binding: "SIGNER_A", url: "https://signer-a.timjosh507.workers.dev/health" },
+  { name: "Signer B", binding: "SIGNER_B", url: "https://signer-b.timjosh507.workers.dev/health" },
+  { name: "Signer C", binding: "SIGNER_C", url: "https://signer-c.timjosh507.workers.dev/health" },
 ] as const;
+
+type HealthBinding = { fetch(request: Request): Promise<Response> };
+function isHealthBinding(value: unknown): value is HealthBinding {
+  return typeof value === "object" && value !== null && "fetch" in value && typeof value.fetch === "function";
+}
 
 async function checkService(service: (typeof services)[number]) {
   try {
-    const response = await fetch(service.url, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-    });
+    const binding: unknown = Reflect.get(getCloudflareContext().env, service.binding);
+    if (!isHealthBinding(binding)) return { ...service, reachable: false, status: null };
+    const response = await binding.fetch(new Request(service.url, { signal: AbortSignal.timeout(5000) }));
     return { ...service, reachable: response.ok, status: response.status };
   } catch {
     return { ...service, reachable: false, status: null };

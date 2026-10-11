@@ -8,5 +8,14 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "services": [
+    { "binding": "API", "service": "bellstate-api" },
+    { "binding": "AGGREGATOR", "service": "bellstate-aggregator" },
+    { "binding": "NOTIFIER", "service": "bellstate-notifier" },
+    { "binding": "WATCH", "service": "bellstate-watch" },
+    { "binding": "SIGNER_A", "service": "signer-a" },
+    { "binding": "SIGNER_B", "service": "signer-b" },
+    { "binding": "SIGNER_C", "service": "signer-c" }
+  ],
   "observability": { "enabled": true }
 }
