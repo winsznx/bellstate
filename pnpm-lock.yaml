@@ -224,6 +224,9 @@ importers:
       '@winsznx/bellstate-protocol':
         specifier: workspace:*
         version: link:../../packages/protocol
+      '@winsznx/bellstate-source-nyse-halts':
+        specifier: workspace:*
+        version: link:../../packages/sources/nyse-halts
       '@winsznx/bellstate-ui':
         specifier: workspace:*
         version: link:../../packages/ui

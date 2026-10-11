@@ -4,6 +4,7 @@ import { dayWindows, resolveSessionWindow, TIMEZONE_BY_MIC, upcomingSpecialDays 
 import { formatVenueTime, SESSION_LABELS } from "@winsznx/bellstate-ui";
 import { SessionChip } from "../../../_components/StatusChip";
 import { supabaseServerClient } from "../../lib/supabase";
+import { loadPublicHalts } from "./publicHalts";
 
 // PRD §11.5 S03. Regions 1-3 (clock/session, today's session bar, special days) are computed
 // live from packages/calendars from the venue calendar. The venue display name is
@@ -34,6 +35,9 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
 
   const venueName = await loadVenueName(mic);
   const now = Math.floor(Date.now() / 1000);
+  const publicHaltResult = await Promise.allSettled([loadPublicHalts(mic, now)]);
+  const publicHalts = publicHaltResult[0]?.status === "fulfilled" ? publicHaltResult[0].value : null;
+  const publicHaltError = publicHaltResult[0]?.status === "rejected";
   const current = resolveSessionWindow(mic, now);
   const windows = dayWindows(mic, now);
   const specialDays = upcomingSpecialDays(mic, now, 60);
@@ -66,6 +70,7 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
             Next transition: {formatVenueTime(current.nextScheduledTransition, mic, false)}
           </span>
         </div>
+        <p className="mt-2 text-sm text-ink-muted">Calendar calculation, not a signed Bellstate attestation.</p>
         {isHolidayToday ? (
           <p className="mt-3 rounded-control bg-surface-muted px-3 py-2 text-sm text-ink-secondary">Closed today — holiday</p>
         ) : null}
@@ -74,7 +79,7 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
             Early close {formatVenueTime(windows.find((w) => w.session !== "CLOSED")?.nextScheduledTransition ?? now, mic, false)}
           </p>
         ) : null}
-        <p className="mt-3 text-sm text-ink-secondary">Halt source: {sourceState === "unknown" ? "no health data" : sourceState === "degraded" ? "latest check failed" : "latest check succeeded"}</p>
+        <p className="mt-3 text-sm text-ink-secondary">Bellstate halt ingestion: {sourceState === "unknown" ? "no recent health data" : sourceState === "degraded" ? "latest check failed" : "latest check succeeded"}</p>
       </header>
 
       {/* Region 2: today's session bar */}
@@ -127,9 +132,43 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
         )}
       </section>
 
-      {/* Region 4: halts today */}
-      <section aria-label="Halts today" className="mb-8 border-t border-border pt-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">Halts today</h2>
+      {/* Region 4: official source snapshot and Bellstate's indexed observations. */}
+      <section aria-label="Public halt feed" className="mb-8 border-t border-border pt-6">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">Public halt feed</h2>
+          {publicHalts ? <a className="text-xs text-ink-secondary underline" href={publicHalts.sourceUrl} target="_blank" rel="noreferrer">NYSE source</a> : null}
+        </div>
+        {publicHaltError ? (
+          <p className="text-sm text-ink-muted">The public halt feed could not be reached. Its status is unknown.</p>
+        ) : !publicHalts ? (
+          <p className="text-sm text-ink-muted">A live public halt feed is not connected for this venue.</p>
+        ) : (
+          <>
+            <p className="mb-3 text-sm text-ink-secondary">
+              NYSE historical feed, last seven days. Fetched {new Date(publicHalts.fetchedAt * 1000).toLocaleString("en-US", { timeZone: TIMEZONE_BY_MIC[mic], timeZoneName: "short" })}.
+              These source observations are not Bellstate attestations.
+            </p>
+            {publicHalts.rows.length === 0 ? (
+              <p className="text-sm text-ink-muted">No halts returned for this venue in the selected period.</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {publicHalts.rows.slice(0, 12).map((halt) => (
+                  <li key={`${halt.symbol}-${halt.haltAt}`} className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
+                    <span className="flex flex-wrap items-center gap-2"><span className="font-medium">{halt.symbol}</span><span className="text-ink-muted">{halt.reason || "Reason unavailable"}</span></span>
+                    <span className="text-xs text-ink-muted">{formatVenueTime(halt.haltAt, mic)} · {halt.resumeTradeAt ? "Trade resumed" : "No trade resumption in feed"}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {publicHalts.rows.length > 12 || publicHalts.truncated ? (
+              <p className="mt-3 text-xs text-ink-muted">Showing 12 of {publicHalts.rows.length}{publicHalts.truncated ? "+" : ""} records. Open the source for the full list.</p>
+            ) : null}
+          </>
+        )}
+      </section>
+
+      <section aria-label="Bellstate indexed halts" className="mb-8 border-t border-border pt-6">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">Bellstate indexed halts today</h2>
         {!db || haltsError ? (
           <p className="text-sm text-ink-muted">Halt data is unavailable.</p>
         ) : visibleHalts.length === 0 ? (

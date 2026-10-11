@@ -19,6 +19,7 @@
     "@winsznx/bellstate-engine": "workspace:*",
     "@winsznx/bellstate-policy": "workspace:*",
     "@winsznx/bellstate-protocol": "workspace:*",
+    "@winsznx/bellstate-source-nyse-halts": "workspace:*",
     "@winsznx/bellstate-ui": "workspace:*",
     "lucide-react": "^0.469.0",
     "next": "^15.1.4",
