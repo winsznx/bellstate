@@ -47,10 +47,26 @@ so scanning the full deployment history can take a long time. Set `XLAYER_RPC_UR
 compatible provider if one is available. The checkpoint contains raw onchain logs and stays
 local; no status rows are published until the scan and a separate database writer are verified.
 
+`scripts/scan-hub-history-okx.ts` uses the existing OKX X Layer Data API credentials to list
+transactions sent to the hub, then independently verifies every transaction receipt against
+X Layer RPC and decodes its actual hub logs. It recovered 770 finalized inbound transactions:
+246 contiguous `MarketUpdated` events (seq 1–246) and 524 `SubmissionFailed` events, all
+decoded as `StaleSeq`. The credential and raw receipt checkpoint remain local. This route
+avoids the public RPC's 100-block range limit.
+
+`scripts/publish-hub-history.ts` requires the recovered market sequence to be contiguous and
+equal to the onchain seq before writing. It prints a dry-run summary by default. With
+`--apply`, it inserts only missing `(tx_hash, log_index)` rows into `status_history` and upserts
+`status_current` with the contract's digest, written time and effective time. On 2026-10-11,
+all 246 verified history rows and current seq 246 were published. The effective market state
+is still stale and appears as UNKNOWN; this backfill does not create a live attestation.
+
 From the repository root:
 
 ```bash
 pnpm --filter @winsznx/bellstate-indexer scan:history
+pnpm --filter @winsznx/bellstate-indexer scan:history:okx
+pnpm --filter @winsznx/bellstate-indexer publish:history
 pnpm --filter @winsznx/bellstate-indexer seed:nvda
 ```
 

@@ -22,6 +22,11 @@ until they reach quorum, and submits them to BellstateHub on X Layer mainnet as 
   `packages/protocol`'s EIP-712 hashing.
 - `src/hubAbi.ts`. The BellstateHub ABI fragments this app calls, hand-written to match
   `packages/contracts/src/BellstateHub.sol` and `BellstateTypes.sol` field-for-field.
+
+The 2026-10-11 chain audit recovered 524 `SubmissionFailed(StaleSeq)` events. The DO now
+checks `marketView.seq` before submitting a market update, prunes already committed digests
+after a successful batch, and drops stale digests after a `StaleSeq` failure. This prevents
+the retry loop from spending gas on old signed messages when the submitter is funded again.
 - `src/chain.ts`. The X Layer chain object (id 196, OKB, matching `apps/web/app/_lib/chains.ts`
   and `Deploy.s.sol`) and the public/wallet client builders, using `XLAYER_RPC_URLS` as a viem
   fallback transport.

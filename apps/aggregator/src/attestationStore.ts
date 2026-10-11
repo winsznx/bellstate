@@ -38,6 +38,7 @@ const PRIORITY_FEE_PER_GAS = 1_000_000n;
 const FUNDING_CHECK_INTERVAL_MS = 60_000;
 const FUNDING_LOW_THRESHOLD = parseEther("0.05");
 const FUNDING_CRITICAL_THRESHOLD = parseEther("0.01");
+const MIN_SUBMITTER_BALANCE = parseEther("0.001");
 
 export interface IngestParams {
   digest: `0x${string}`;
@@ -123,6 +124,17 @@ function decodeFailureReason(reason: `0x${string}`): string {
     return `${decoded.errorName}(${decoded.args?.map(String).join(", ") ?? ""})`;
   } catch {
     return reason;
+  }
+}
+
+function staleSeqFailure(reason: `0x${string}`): { subject: string; lastSeq: number } | null {
+  try {
+    const decoded = decodeErrorResult({ abi: hubAbi, data: reason });
+    if (decoded.errorName !== "StaleSeq" || !decoded.args) return null;
+    const [subject, expected] = decoded.args;
+    return { subject: subject.toLowerCase(), lastSeq: expected - 1 };
+  } catch {
+    return null;
   }
 }
 
@@ -325,6 +337,10 @@ export class AttestationStore extends DurableObject<Env> {
     env: Env,
   ): Promise<void> {
     const callKinds = JSON.parse(pending.call_kinds) as AttestationKind[];
+    const submittedRows = this.ctx.storage.sql
+      .exec<{ kind: string; subject: string; seq: number | null }>(
+        `SELECT DISTINCT kind, subject, seq FROM attestations WHERE submission_id = ?`, pending.id,
+      ).toArray();
 
     const failures = parseEventLogs({
       abi: hubAbi,
@@ -334,6 +350,7 @@ export class AttestationStore extends DurableObject<Env> {
     });
     const failedKinds = new Set<AttestationKind>();
     const failureDetails: string[] = [];
+    const staleFailures: { kind: AttestationKind; subject: string; lastSeq: number }[] = [];
 
     for (const failure of failures) {
       if (failure.args.index === undefined) continue;
@@ -345,6 +362,8 @@ export class AttestationStore extends DurableObject<Env> {
       }
       failedKinds.add(kind);
       failureDetails.push(`${kind} (index ${index}): ${decodeFailureReason(failure.args.reason ?? "0x")}`);
+      const stale = staleSeqFailure(failure.args.reason ?? "0x");
+      if (stale) staleFailures.push({ kind, ...stale });
     }
 
     if (failedKinds.size > 0) {
@@ -361,6 +380,22 @@ export class AttestationStore extends DurableObject<Env> {
       } else {
         this.ctx.storage.sql.exec(`DELETE FROM attestations WHERE submission_id = ? AND kind = ?`, pending.id, kind);
       }
+    }
+
+    // A successful facet call commits its selected seq. Old unsubmitted digests must go too;
+    // otherwise the next alarm can resend them forever as costly StaleSeq failures.
+    for (const row of submittedRows) {
+      if (row.seq === null || failedKinds.has(row.kind as AttestationKind)) continue;
+      this.ctx.storage.sql.exec(
+        `DELETE FROM attestations WHERE kind = ? AND subject = ? AND seq <= ? AND submission_id IS NULL`,
+        row.kind, row.subject, row.seq,
+      );
+    }
+    for (const failure of staleFailures) {
+      this.ctx.storage.sql.exec(
+        `DELETE FROM attestations WHERE kind = ? AND subject = ? AND seq <= ? AND submission_id IS NULL`,
+        failure.kind, failure.subject, failure.lastSeq,
+      );
     }
 
     const supabase = createSupabaseClient(env);
@@ -428,7 +463,29 @@ export class AttestationStore extends DurableObject<Env> {
     }
     if (resolved.length === 0) return;
 
-    const { calls, callKinds } = this.buildCalls(resolved);
+    const marketItems = resolved.filter((item) => item.kind === "MarketUpdate");
+    const marketSeqs = await Promise.all(marketItems.map(async (item) => ({
+      subject: item.subject.toLowerCase(),
+      seq: (await client.readContract({
+        address: hubAddress, abi: hubAbi, functionName: "marketView",
+        args: [item.subject as `0x${string}`],
+      })).seq,
+    })));
+    const currentMarketSeq = new Map(marketSeqs.map((item) => [item.subject, item.seq]));
+    for (const item of marketItems) {
+      const onchainSeq = currentMarketSeq.get(item.subject.toLowerCase());
+      if (onchainSeq !== undefined && item.seq !== null && item.seq <= onchainSeq) {
+        this.ctx.storage.sql.exec(
+          `DELETE FROM attestations WHERE kind = 'MarketUpdate' AND subject = ? AND seq <= ? AND submission_id IS NULL`,
+          item.subject, onchainSeq,
+        );
+      }
+    }
+    const ready = resolved.filter((item) => item.kind !== "MarketUpdate" || item.seq === null ||
+      item.seq > (currentMarketSeq.get(item.subject.toLowerCase()) ?? -1));
+    if (ready.length === 0) return;
+
+    const { calls, callKinds } = this.buildCalls(ready);
     if (calls.length === 0) return;
 
     const block = await client.getBlock();
@@ -437,15 +494,28 @@ export class AttestationStore extends DurableObject<Env> {
     }
     const maxFeePerGas = block.baseFeePerGas * 2n + PRIORITY_FEE_PER_GAS;
 
+    const account = submitterAccount(env);
+    const data = encodeFunctionData({ abi: hubAbi, functionName: "submitBatch", args: [calls] });
+    const balance = await client.getBalance({ address: account.address });
+    if (balance < MIN_SUBMITTER_BALANCE) {
+      await this.checkFunding(client, env);
+      return;
+    }
+    const estimatedGas = await client.estimateGas({ account: account.address, to: hubAddress, data });
+    if (balance < estimatedGas * maxFeePerGas) {
+      await this.checkFunding(client, env);
+      return;
+    }
+
     const nonce = await this.nextNonce(client, env);
-    const digests = resolved.map((item) => item.digest);
+    const digests = ready.map((item) => item.digest);
 
     const walletClient = walletClientFor(env);
     const txHash = await walletClient.sendTransaction({
       chain: xLayer,
-      account: submitterAccount(env),
+      account,
       to: hubAddress,
-      data: encodeFunctionData({ abi: hubAbi, functionName: "submitBatch", args: [calls] }),
+      data,
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas: PRIORITY_FEE_PER_GAS,
@@ -470,7 +540,7 @@ export class AttestationStore extends DurableObject<Env> {
       this.ctx.storage.sql.exec(`UPDATE attestations SET submission_id = ? WHERE digest = ?`, inserted.id, digest);
     }
 
-    const submittedHeartbeatDomains = new Set(resolved.filter((i) => i.kind === "Heartbeat").map((i) => i.subject));
+    const submittedHeartbeatDomains = new Set(ready.filter((i) => i.kind === "Heartbeat").map((i) => i.subject));
     for (const domain of submittedHeartbeatDomains) {
       this.ctx.storage.sql.exec(
         `INSERT INTO heartbeat_submissions (domain, last_submitted_at) VALUES (?, ?)
@@ -559,19 +629,11 @@ export class AttestationStore extends DurableObject<Env> {
     return { calls, callKinds };
   }
 
-  /** PRD §6.5: "Nonce is owned by the DO." Seeded once from the chain, then incremented locally
-   * on every send regardless of confirmation — standard EVM nonce-management practice. */
+  /** The DO serializes submissions. Read the pending nonce each time so a failed broadcast
+   * cannot reserve a nonce forever while the submitter is out of gas. */
   private async nextNonce(client: XLayerPublicClient, env: Env): Promise<number> {
-    const stored = await this.ctx.storage.get<string>("nonce");
-    if (stored !== undefined) {
-      const nonce = Number(stored);
-      await this.ctx.storage.put("nonce", (nonce + 1).toString());
-      return nonce;
-    }
     const account = submitterAccount(env);
-    const onchain = await client.getTransactionCount({ address: account.address, blockTag: "pending" });
-    await this.ctx.storage.put("nonce", (onchain + 1).toString());
-    return onchain;
+    return client.getTransactionCount({ address: account.address, blockTag: "pending" });
   }
 
   /**
