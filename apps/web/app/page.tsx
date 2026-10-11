@@ -1,3 +1,4 @@
+import { BrandWordmark } from "./_components/BrandMark";
 import Link from "next/link";
 
 /**
@@ -72,9 +73,7 @@ export default function LandingPage() {
     <div className="bg-white text-ink">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            Bellstate
-          </Link>
+          <Link href="/" aria-label="Bellstate home"><BrandWordmark /></Link>
           <nav className="hidden gap-8 text-sm text-ink-secondary sm:flex">
             {NAV.map((item) => (
               <a key={item.href} href={item.href} className="hover:text-ink">
@@ -262,7 +261,7 @@ export default function LandingPage() {
         <footer className="border-t border-border">
           <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-8 px-6 py-12 sm:grid-cols-4">
             <div>
-              <div className="mb-3 text-sm font-semibold text-ink">Bellstate</div>
+              <div className="mb-3"><BrandWordmark compact /></div>
               <p className="text-xs text-ink-muted">Real-market status for onchain stocks.</p>
             </div>
             <div>

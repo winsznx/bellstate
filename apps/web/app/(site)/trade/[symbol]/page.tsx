@@ -1,3 +1,4 @@
+import { AssetIcon } from "../../../_components/AssetIcon";
 import { notFound } from "next/navigation";
 import type { Mic } from "@winsznx/bellstate-calendars";
 import { marketSentence } from "@winsznx/bellstate-ui";
@@ -16,7 +17,7 @@ export default async function TradePage({ params }: { params: Promise<{ symbol: 
 
   return (
     <main className="mx-auto max-w-[600px] px-6 py-8">
-      <h1 className="mb-2 text-2xl font-semibold text-ink">Trade {asset.symbol}</h1>
+      <h1 className="mb-2 flex items-center gap-3 text-2xl font-semibold text-ink"><AssetIcon symbol={asset.symbol} size={36} />Trade {asset.symbol}</h1>
       <p className="mb-6 text-sm text-ink-secondary">
         {marketSentence({ venue: asset.venueName, symbol: asset.symbol, mic: asset.mic as Mic, state: asset.market })}
       </p>

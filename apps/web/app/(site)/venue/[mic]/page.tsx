@@ -3,6 +3,7 @@ import type { Mic } from "@winsznx/bellstate-calendars";
 import { dayWindows, resolveSessionWindow, TIMEZONE_BY_MIC, upcomingSpecialDays } from "@winsznx/bellstate-calendars";
 import { formatVenueTime, SESSION_LABELS } from "@winsznx/bellstate-ui";
 import Link from "next/link";
+import { AssetIcon } from "../../../_components/AssetIcon";
 import { SessionChip } from "../../../_components/StatusChip";
 import { haltsTodayFor, sourceHealthyFor } from "./fixtures";
 import { supabaseServerClient } from "../../lib/supabase";
@@ -133,7 +134,8 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
           <ul className="space-y-2 text-sm">
             {halts.map((h) => (
               <li key={h.symbol} className="flex items-center justify-between border-b border-border pb-2">
-                <span>
+                <span className="flex items-center gap-2">
+                  {h.tracked ? <AssetIcon symbol={`${h.symbol}x`} size={28} /> : null}
                   {h.tracked ? (
                     <Link href={`/asset/${h.symbol}x`} className="font-medium text-brand underline">
                       {h.symbol}
@@ -141,7 +143,7 @@ export default async function VenuePage({ params }: { params: Promise<{ mic: str
                   ) : (
                     <span className="text-ink-secondary">{h.symbol}</span>
                   )}
-                  <span className="ml-2 text-ink-muted">{h.reasonCode}</span>
+                  <span className="text-ink-muted">{h.reasonCode}</span>
                 </span>
                 <span className="text-xs text-ink-muted">{formatVenueTime(h.haltAt, mic)}</span>
               </li>

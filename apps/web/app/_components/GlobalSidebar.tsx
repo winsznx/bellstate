@@ -1,5 +1,7 @@
 "use client";
 
+import { BrandWordmark } from "./BrandMark";
+
 import { Activity, BarChart3, Bell, Code2, LayoutGrid, Radio } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,7 +36,7 @@ export function GlobalSidebar() {
     <aside className="sticky top-0 flex h-screen w-rail shrink-0 flex-col justify-between overflow-y-auto p-4 pb-[18px] pt-6">
       <div>
         <Link href="/board" className="flex items-center px-2.5 pb-[22px] pt-1.5">
-          <span className="text-lg font-semibold tracking-tight text-ink">Bellstate</span>
+          <BrandWordmark />
         </Link>
 
         <nav className="flex flex-col gap-[3px]" aria-label="Main navigation">

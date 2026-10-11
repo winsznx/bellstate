@@ -10,6 +10,7 @@ import type { Lifecycle, MarketState } from "@winsznx/bellstate-engine";
  */
 export interface BoardRow {
   symbol: string;
+  underlyingSymbol: string;
   name: string;
   mic: string;
   venueName: string;
@@ -25,6 +26,7 @@ const NOW = Math.floor(Date.now() / 1000);
 export const BOARD_ROWS: BoardRow[] = [
   {
     symbol: "NVDAx",
+    underlyingSymbol: "NVDA",
     name: "NVIDIA xStock",
     mic: "XNAS",
     venueName: "Nasdaq",
@@ -44,6 +46,7 @@ export const BOARD_ROWS: BoardRow[] = [
   },
   {
     symbol: "CTNTx",
+    underlyingSymbol: "CTNT",
     name: "Cheetah Net Supply Chain xStock",
     mic: "XNAS",
     venueName: "Nasdaq",
@@ -63,6 +66,7 @@ export const BOARD_ROWS: BoardRow[] = [
   },
   {
     symbol: "SKHYx",
+    underlyingSymbol: "SKHY",
     name: "SK hynix xStock",
     mic: "XKRX",
     venueName: "KRX",
@@ -85,7 +89,8 @@ export const BOARD_ROWS: BoardRow[] = [
     ],
   },
   {
-    symbol: "700x",
+    symbol: "TCENTx",
+    underlyingSymbol: "700",
     name: "Tencent xStock",
     mic: "XHKG",
     venueName: "HKEX",

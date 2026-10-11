@@ -1,0 +1,24 @@
+{
+  "NVDAx": {
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/NVDAx.png",
+    "sourceKind": "issuer",
+    "sha256": "6b639eff0158850c474d378ed8580375c396dda494cfff9040e6b1735b8ef623"
+  },
+  "SKHYx": {
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SKHYx.png",
+    "sourceKind": "issuer",
+    "sha256": "adf74e917f895dff59018c21c262383be0115925ba0656825eca25141e0aa31d"
+  },
+  "TCENTx": {
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/TCENTx.png",
+    "sourceKind": "issuer",
+    "sha256": "61f3df2fde8c5dc35b5e0b828be636b67818c5bb3d445845682d9228d83330c1",
+    "underlyingSymbol": "700"
+  },
+  "CTNTx": {
+    "source": "https://images.squarespace-cdn.com/content/v1/62d84aa73c901c7acc730c8e/c785284a-fa82-4f35-9e34-7931210b7d8b/logo-transparent.png?format=300w",
+    "sourceKind": "underlying-company",
+    "note": "Cheetah Net company logo; issuer token artwork was unavailable.",
+    "sha256": "a18473c2cd2ab6672912c2ba0d34177e0a08d63510a5833cfa63717995a5ef43"
+  }
+}

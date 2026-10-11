@@ -1,3 +1,4 @@
+import { AssetIcon } from "../../../_components/AssetIcon";
 import { notFound } from "next/navigation";
 import type { Mic } from "@winsznx/bellstate-calendars";
 import {
@@ -30,9 +31,7 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
       {/* Region 1: identity */}
       <header className="mb-6 border-b border-border pb-6">
         <div className="text-xs uppercase tracking-wide text-ink-muted">{asset.issuer}</div>
-        <h1 className="mt-1 text-3xl font-semibold text-ink">
-          {asset.symbol} <span className="text-lg font-normal text-ink-secondary">· {asset.name}</span>
-        </h1>
+        <div className="mt-2 flex items-center gap-3"><AssetIcon symbol={asset.symbol} size={48} /><h1 className="text-3xl font-semibold text-ink">{asset.symbol} <span className="text-lg font-normal text-ink-secondary">· {asset.name}</span></h1></div>
         <dl className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-4">
           <div>
             <dt className="text-ink-muted">ISIN</dt>

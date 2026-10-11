@@ -1,3 +1,4 @@
+import { AssetIcon } from "../../../_components/AssetIcon";
 import { notFound } from "next/navigation";
 import type { MarketState } from "@winsznx/bellstate-engine";
 import { formatAddress, formatDuration, INTERRUPTION_LABELS, marketSentence, SESSION_LABELS } from "@winsznx/bellstate-ui";
@@ -56,9 +57,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     <main className="mx-auto max-w-[900px] px-6 py-8">
       {/* Region 1: header */}
       <header className="mb-6 border-b border-border pb-6">
-        <div className="text-xs uppercase tracking-wide text-ink-muted">
-          {event.symbol} · {event.venue}
-        </div>
+        <div className="flex items-center gap-3"><AssetIcon symbol={event.symbol} size={36} /><div className="text-xs uppercase tracking-wide text-ink-muted">{event.symbol} · {event.venue}</div></div>
         <p className="mt-2 text-xl text-ink">{shareText}</p>
         <table className="mt-4 w-full text-sm">
           <thead>

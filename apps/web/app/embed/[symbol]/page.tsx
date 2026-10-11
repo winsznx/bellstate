@@ -1,3 +1,5 @@
+import { BrandMark } from "../../_components/BrandMark";
+import { AssetIcon } from "../../_components/AssetIcon";
 import { embedShortForm } from "@winsznx/bellstate-ui";
 import type { Mic } from "@winsznx/bellstate-calendars";
 import { getAssetDetail } from "../../(site)/asset/[symbol]/fixtures";
@@ -32,11 +34,11 @@ export default async function EmbedPage({
     return (
       <div className="flex h-full flex-col justify-between bg-surface p-4">
         <div>
-          <div className="text-lg font-semibold text-ink">{asset.symbol}</div>
+          <div className="flex items-center gap-2 text-lg font-semibold text-ink"><AssetIcon symbol={asset.symbol} size={28} />{asset.symbol}</div>
           <div className="mt-1 text-sm text-ink-secondary">{shortForm}</div>
         </div>
         <a href={`https://bellstate.app/asset/${asset.symbol}`} className="text-xs text-ink-muted underline">
-          Bellstate
+          <span className="inline-flex items-center gap-1.5"><BrandMark size={16} />Bellstate</span>
         </a>
       </div>
     );
@@ -44,7 +46,7 @@ export default async function EmbedPage({
 
   return (
     <div className="flex h-full items-center gap-2 bg-surface px-3 py-2 text-sm">
-      <span className="font-medium text-ink">{asset.symbol}</span>
+      <AssetIcon symbol={asset.symbol} size={22} /><span className="font-medium text-ink">{asset.symbol}</span>
       <span className="text-ink-secondary">{shortForm}</span>
     </div>
   );

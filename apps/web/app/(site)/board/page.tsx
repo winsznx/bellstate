@@ -1,3 +1,4 @@
+import { AssetIcon } from "../../_components/AssetIcon";
 import { compareBySeverity, formatVenueTime, PROGRAM_LIFECYCLE_LABELS, PRIMARY_LEG_LABELS, VALUATION_LABELS, VALUATION_NOT_PROVIDED_LABEL } from "@winsznx/bellstate-ui";
 import type { Mic } from "@winsznx/bellstate-calendars";
 import { InterruptionChip, SessionChip } from "../../_components/StatusChip";
@@ -135,11 +136,10 @@ export default async function BoardPage() {
             {sorted.map((row) => (
               <tr key={row.symbol} className="border-b border-border hover:bg-surface-muted">
                 <td className="py-3 pr-4">
-                  <div className="font-medium text-ink">{row.symbol}</div>
-                  <div className="text-xs text-ink-muted">{row.name}</div>
+                  <div className="flex items-center gap-3"><AssetIcon symbol={row.symbol} size={36} /><div><div className="font-medium text-ink">{row.symbol}</div><div className="text-xs text-ink-muted">{row.name}</div></div></div>
                 </td>
                 <td className="py-3 pr-4 font-mono text-xs text-ink-secondary">
-                  {row.mic}:{row.symbol.replace(/x$/, "")}
+                  {row.mic}:{row.underlyingSymbol}
                 </td>
                 <td className="py-3 pr-4">
                   <SessionChip session={row.market.session} />
