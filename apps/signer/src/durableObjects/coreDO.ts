@@ -200,10 +200,14 @@ export class CoreDO extends DurableObject<Env> {
       });
     }
 
-    const postResults =
-      payloads.length > 0
-        ? await postToAggregators(this.env.AGGREGATOR_URLS, { signerAddress: account.address, attestations: payloads })
-        : [];
+    // PRD §6.5: "POST /v1/attestations on the aggregator: {kind, message, signature}" — one
+    // attestation per request, not a batch. observedAt/sourceTime/sourceRefs ride alongside as
+    // the "unsigned metadata" §8.1 point 6 describes. Found via a real integration test against
+    // the deployed aggregator: an earlier version of this file wrapped every payload from one
+    // tick into a single {signerAddress, attestations: [...]} body, which the aggregator's real
+    // intake route (correctly, per the PRD text it was built against) rejected with 400.
+    const postResultsPerPayload = await Promise.all(payloads.map((payload) => postToAggregators(this.env.AGGREGATOR_URLS, payload)));
+    const postResults = postResultsPerPayload.flat();
 
     this.status = {
       lastTickAt: now,

@@ -15,8 +15,41 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UsHaltsDO", "ChainDO", "CoreDO"] }],
   "triggers": { "crons": ["* * * * *"] },
   "env": {
-    "a": { "name": "signer-a" },
-    "b": { "name": "signer-b" },
-    "c": { "name": "signer-c" }
+    "a": {
+      "name": "signer-a",
+      "durable_objects": {
+        "bindings": [
+          { "name": "US_HALTS", "class_name": "UsHaltsDO" },
+          { "name": "CHAIN", "class_name": "ChainDO" },
+          { "name": "CORE", "class_name": "CoreDO" }
+        ]
+      },
+      "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UsHaltsDO", "ChainDO", "CoreDO"] }],
+      "triggers": { "crons": ["* * * * *"] }
+    },
+    "b": {
+      "name": "signer-b",
+      "durable_objects": {
+        "bindings": [
+          { "name": "US_HALTS", "class_name": "UsHaltsDO" },
+          { "name": "CHAIN", "class_name": "ChainDO" },
+          { "name": "CORE", "class_name": "CoreDO" }
+        ]
+      },
+      "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UsHaltsDO", "ChainDO", "CoreDO"] }],
+      "triggers": { "crons": ["* * * * *"] }
+    },
+    "c": {
+      "name": "signer-c",
+      "durable_objects": {
+        "bindings": [
+          { "name": "US_HALTS", "class_name": "UsHaltsDO" },
+          { "name": "CHAIN", "class_name": "ChainDO" },
+          { "name": "CORE", "class_name": "CoreDO" }
+        ]
+      },
+      "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UsHaltsDO", "ChainDO", "CoreDO"] }],
+      "triggers": { "crons": ["* * * * *"] }
+    }
   }
 }
