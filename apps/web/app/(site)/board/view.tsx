@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import {
-  compareBySeverity,
   formatVenueTime,
   PROGRAM_LIFECYCLE_LABELS,
   PRIMARY_LEG_LABELS,
@@ -15,7 +14,7 @@ import type { Mic } from "@winsznx/bellstate-calendars";
 import { AssetIcon } from "../../_components/AssetIcon";
 import { InterruptionChip, SessionChip } from "../../_components/StatusChip";
 import { VenueTile } from "../../_components/VenueTile";
-import type { BoardSnapshot } from "./data";
+import type { BoardQuery, BoardSnapshot } from "./data";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -27,23 +26,19 @@ const artworkCatalog = [
   { symbol: "CTNTx", artwork: "Company artwork" },
 ] as const;
 
-export function BoardView({ initial }: { initial: BoardSnapshot }) {
+export function BoardView({ initial, initialQuery }: { initial: BoardSnapshot; initialQuery: BoardQuery }) {
   const [snapshot, setSnapshot] = useState(initial);
-  const [search, setSearch] = useState("");
-  const [session, setSession] = useState("ALL");
-  const [interruption, setInterruption] = useState("ALL");
+  const [search, setSearch] = useState(initialQuery.q ?? "");
+  const [session, setSession] = useState(initialQuery.session ?? "ALL");
+  const [interruption, setInterruption] = useState(initialQuery.interruption ?? "ALL");
   const [refreshing, setRefreshing] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initial.page);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+  const firstRender = useRef(true);
   const [connection, setConnection] = useState<
     "connecting" | "connected" | "disconnected"
   >(url && key ? "connecting" : "disconnected");
 
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    setSearch(query.get("q") ?? "");
-    setSession(query.get("session") ?? "ALL");
-    setInterruption(query.get("interruption") ?? "ALL");
-  }, []);
   const updateFilter = (
     name: "q" | "session" | "interruption",
     value: string,
@@ -55,6 +50,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
     const query = new URLSearchParams(window.location.search);
     if (!value || value === "ALL") query.delete(name);
     else query.set(name, value);
+    query.delete("page");
     window.history.replaceState(
       null,
       "",
@@ -62,31 +58,51 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
     );
   };
 
+  const changePage = (next: number) => {
+    setPage(next);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", String(next));
+    window.history.replaceState(null, "", `${window.location.pathname}?${query}`);
+  };
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setRefreshing(true);
+      try {
+        const query = new URLSearchParams();
+        if (search.trim()) query.set("q", search.trim());
+        if (session !== "ALL") query.set("session", session);
+        if (interruption !== "ALL") query.set("interruption", interruption);
+        query.set("page", String(page));
+        const response = await fetch(`/board/snapshot?${query}`, { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const next = (await response.json()) as BoardSnapshot;
+        if (!controller.signal.aborted) setSnapshot(next);
+      } catch (error) {
+        if (!controller.signal.aborted) setSnapshot((current) => ({
+          ...current,
+          error: `Live update failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        }));
+      } finally {
+        if (!controller.signal.aborted) setRefreshing(false);
+      }
+    }, refreshNonce ? 0 : 250);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [search, session, interruption, page, refreshNonce]);
+
   useEffect(() => {
     if (!url || !key) return;
     const client = createClient(url, key);
     let mounted = true;
-    let queued = false;
-    const refresh = async () => {
-      if (queued) return;
-      queued = true;
-      setRefreshing(true);
-      try {
-        const response = await fetch("/board/snapshot", { cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const next = (await response.json()) as BoardSnapshot;
-        if (mounted) setSnapshot(next);
-      } catch (error) {
-        if (mounted)
-          setSnapshot((current) => ({
-            ...current,
-            error: `Live update failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-          }));
-      } finally {
-        queued = false;
-        if (mounted) setRefreshing(false);
-      }
-    };
+    const refresh = () => setRefreshNonce((value) => value + 1);
     const channel = client
       .channel("board-live")
       .on(
@@ -103,7 +119,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
         if (!mounted) return;
         if (status === "SUBSCRIBED") {
           setConnection("connected");
-          void refresh();
+          refresh();
         } else if (
           status === "CHANNEL_ERROR" ||
           status === "TIMED_OUT" ||
@@ -117,51 +133,10 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
     };
   }, []);
 
-  const rows = useMemo(
-    () =>
-      snapshot.rows
-        .filter((row) => {
-          const q = search.trim().toLowerCase();
-          const match =
-            !q ||
-            [
-              row.symbol,
-              row.name,
-              row.underlyingSymbol,
-              row.isin,
-              ...(row.tokenAddresses ?? []),
-            ].some((value) => value?.toLowerCase().includes(q));
-          return (
-            match &&
-            (session === "ALL" || row.market.session === session) &&
-            (interruption === "ALL" || row.market.interruption === interruption)
-          );
-        })
-        .sort((a, b) => compareBySeverity(a.market, b.market)),
-    [snapshot.rows, search, session, interruption],
-  );
-  const pageSize = 50;
-  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
-  const visibleRows = rows.slice((Math.min(page, pageCount) - 1) * pageSize, Math.min(page, pageCount) * pageSize);
-  const counts = {
-    REGULAR: 0,
-    EXTENDED: 0,
-    AUCTION: 0,
-    CLOSED: 0,
-    UNKNOWN: 0,
-    halted: 0,
-  };
-  for (const row of snapshot.rows) {
-    if (
-      row.market.interruption === "ASSET_HALTED" ||
-      row.market.interruption === "VENUE_HALTED"
-    )
-      counts.halted++;
-    else counts[row.market.session]++;
-  }
-  const names = new Map(
-    snapshot.rows.map((row) => [row.listingId, row.symbol]),
-  );
+  const visibleRows = snapshot.rows;
+  const pageSize = snapshot.pageSize;
+  const pageCount = Math.max(1, Math.ceil(snapshot.filteredRows / pageSize));
+  const counts = snapshot.counts;
   return (
     <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8">
       <header className="mb-8">
@@ -187,7 +162,6 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
         className="mb-8 flex gap-4 overflow-x-auto pb-2"
       >
         {snapshot.venues.map((venue) => {
-          const related = snapshot.rows.filter((row) => row.mic === venue.mic);
           return (
             <VenueTile
               key={venue.mic}
@@ -203,11 +177,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
                     )
                   : "—"
               }
-              openHalts={
-                related.filter(
-                  (row) => row.market.interruption === "ASSET_HALTED",
-                ).length
-              }
+              openHalts={venue.openHalts ?? 0}
               sourceHealth="unknown"
             />
           );
@@ -346,20 +316,20 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
             ))}
           </tbody>
         </table>
-        {!snapshot.error && rows.length === 0 && (
+        {!snapshot.error && snapshot.filteredRows === 0 && (
           <p className="py-8 text-sm text-ink-muted">
-            {snapshot.rows.length
+            {snapshot.totalRows
               ? "No assets match these filters."
               : "The issuer catalog is unavailable right now."}
           </p>
         )}
       </section>
-      {rows.length > pageSize && <nav aria-label="Asset pages" className="mb-8 flex items-center justify-between gap-3 text-sm">
-        <span className="text-ink-muted">Showing {(Math.min(page, pageCount) - 1) * pageSize + 1}–{Math.min(page, pageCount) * pageSize > rows.length ? rows.length : Math.min(page, pageCount) * pageSize} of {rows.length} assets</span>
+      {snapshot.filteredRows > pageSize && <nav aria-label="Asset pages" className="mb-8 flex items-center justify-between gap-3 text-sm">
+        <span className="text-ink-muted">Showing {(snapshot.page - 1) * pageSize + 1}–{Math.min(snapshot.page * pageSize, snapshot.filteredRows)} of {snapshot.filteredRows} assets</span>
         <div className="flex items-center gap-3">
-          <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)} className="rounded-control border border-border px-3 py-2 disabled:opacity-40">Previous</button>
-          <span>{page} / {pageCount}</span>
-          <button type="button" disabled={page >= pageCount} onClick={() => setPage(page + 1)} className="rounded-control border border-border px-3 py-2 disabled:opacity-40">Next</button>
+          <button type="button" disabled={snapshot.page <= 1} onClick={() => changePage(snapshot.page - 1)} className="rounded-control border border-border px-3 py-2 disabled:opacity-40">Previous</button>
+          <span>{snapshot.page} / {pageCount}</span>
+          <button type="button" disabled={snapshot.page >= pageCount} onClick={() => changePage(snapshot.page + 1)} className="rounded-control border border-border px-3 py-2 disabled:opacity-40">Next</button>
         </div>
       </nav>}
       <section aria-labelledby="artwork-catalog-heading" className="mb-10">
@@ -398,8 +368,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
                 className="flex flex-wrap justify-between gap-2 py-3 text-sm"
               >
                 <span className="text-ink">
-                  {names.get(event.listingId ?? undefined) ??
-                    "Unmatched listing"}{" "}
+                  {event.symbol ?? "Unmatched listing"}{" "}
                   {event.reason ?? "Halt reported"}
                 </span>
                 <a

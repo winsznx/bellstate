@@ -12,16 +12,23 @@ import { supabaseServerClient } from "../lib/supabase";
 import { loadCatalog } from "../lib/xstocksCatalog";
 import { loadOnchainStatus } from "../lib/onchainStatus";
 import { FAMILY_BY_MIC, resolveSessionWindow, type Mic } from "@winsznx/bellstate-calendars";
+import { compareBySeverity } from "@winsznx/bellstate-ui";
 
 export interface BoardSnapshot {
   rows: BoardRow[];
-  venues: { mic: string; venueName: string; calendarSession: MarketState["session"]; nextTransition: number }[];
+  totalRows: number;
+  filteredRows: number;
+  page: number;
+  pageSize: number;
+  counts: Record<"REGULAR" | "EXTENDED" | "AUCTION" | "CLOSED" | "UNKNOWN" | "halted", number>;
+  venues: { mic: string; venueName: string; calendarSession: MarketState["session"]; nextTransition: number; openHalts?: number }[];
   events: {
     id: string;
     listingId: string | null;
     reason: string | null;
     haltedAt: string;
     sourceUrl: string;
+    symbol: string | null;
   }[];
   fetchedAt: string;
   error: string | null;
@@ -49,6 +56,11 @@ const seconds = (value: unknown): number => {
 export async function loadBoard(): Promise<BoardSnapshot> {
   const empty: BoardSnapshot = {
     rows: [],
+    totalRows: 0,
+    filteredRows: 0,
+    page: 1,
+    pageSize: 50,
+    counts: { REGULAR: 0, EXTENDED: 0, AUCTION: 0, CLOSED: 0, UNKNOWN: 0, halted: 0 },
     venues: [],
     events: [],
     fetchedAt: new Date().toISOString(),
@@ -202,6 +214,7 @@ export async function loadBoard(): Promise<BoardSnapshot> {
     } satisfies BoardRow;
   });
   return {
+    ...empty,
     rows: [...indexedRows, ...catalogRows.filter((asset) => !rows.some((row) => row.symbol.toLowerCase() === asset.symbol.toLowerCase()))],
     venues: (venues.data ?? []).map((venue) => {
       const supported = venue.mic in FAMILY_BY_MIC;
@@ -219,8 +232,47 @@ export async function loadBoard(): Promise<BoardSnapshot> {
       reason: halt.reason_code,
       haltedAt: halt.halt_at,
       sourceUrl: halt.source_url,
+      symbol: listingById.get(halt.listing_id)?.symbol ?? null,
     })),
     fetchedAt: new Date().toISOString(),
     error: catalogResult.error,
+  };
+}
+
+export interface BoardQuery {
+  q?: string;
+  session?: string;
+  interruption?: string;
+  page?: number;
+}
+
+export function paginateBoard(snapshot: BoardSnapshot, query: BoardQuery = {}): BoardSnapshot {
+  const counts = { REGULAR: 0, EXTENDED: 0, AUCTION: 0, CLOSED: 0, UNKNOWN: 0, halted: 0 };
+  const venueHalts = new Map<string, number>();
+  for (const row of snapshot.rows) {
+    if (row.market.interruption === "ASSET_HALTED" || row.market.interruption === "VENUE_HALTED") {
+      counts.halted++;
+      venueHalts.set(row.mic, (venueHalts.get(row.mic) ?? 0) + 1);
+    } else counts[row.market.session]++;
+  }
+  const q = (query.q ?? "").trim().toLowerCase();
+  const filtered = snapshot.rows.filter((row) =>
+    (!q || [row.symbol, row.name, row.underlyingSymbol, row.isin, ...(row.tokenAddresses ?? [])].some((value) => value?.toLowerCase().includes(q))) &&
+    (!query.session || query.session === "ALL" || row.market.session === query.session) &&
+    (!query.interruption || query.interruption === "ALL" || row.market.interruption === query.interruption),
+  ).sort((a, b) => compareBySeverity(a.market, b.market));
+  const pageSize = 50;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const requestedPage = Number.isFinite(query.page) ? Math.floor(query.page!) : 1;
+  const page = Math.min(pageCount, Math.max(1, requestedPage));
+  return {
+    ...snapshot,
+    rows: filtered.slice((page - 1) * pageSize, page * pageSize),
+    totalRows: snapshot.rows.length,
+    filteredRows: filtered.length,
+    page,
+    pageSize,
+    counts,
+    venues: snapshot.venues.map((venue) => ({ ...venue, openHalts: venueHalts.get(venue.mic) ?? 0 })),
   };
 }
