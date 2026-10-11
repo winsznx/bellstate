@@ -9,10 +9,13 @@ import {
 } from "@winsznx/bellstate-engine";
 import type { BoardRow } from "./types";
 import { supabaseServerClient } from "../lib/supabase";
+import { loadCatalog } from "../lib/xstocksCatalog";
+import { loadOnchainStatus } from "../lib/onchainStatus";
+import { FAMILY_BY_MIC, resolveSessionWindow, type Mic } from "@winsznx/bellstate-calendars";
 
 export interface BoardSnapshot {
   rows: BoardRow[];
-  venues: { mic: string; venueName: string }[];
+  venues: { mic: string; venueName: string; calendarSession: MarketState["session"]; nextTransition: number }[];
   events: {
     id: string;
     listingId: string | null;
@@ -51,11 +54,35 @@ export async function loadBoard(): Promise<BoardSnapshot> {
     fetchedAt: new Date().toISOString(),
     error: null,
   };
+  const [catalogResult, onchain] = await Promise.all([loadCatalog().then(
+    (assets) => ({ assets, error: null }),
+    (error: unknown) => ({ assets: [], error: error instanceof Error ? error.message : "Issuer catalog unavailable" }),
+  ), loadOnchainStatus()]);
+  const catalogRows: BoardRow[] = catalogResult.assets.map((asset) => ({
+    source: "issuer catalog",
+    logo: asset.logo,
+    tradingHoursMode: asset.tradingHoursMode,
+    symbol: asset.symbol,
+    underlyingSymbol: asset.underlyingSymbol,
+    name: asset.name,
+    mic: asset.mic ?? "—",
+    venueName: asset.venueName ?? "Unlisted",
+    isin: asset.isin,
+    tokenAddresses: [asset.rawTokenAddress, asset.wrapperAddress].filter((address): address is string => Boolean(address)),
+    statusSource: asset.symbol === "NVDAx" && onchain ? "onchain" : null,
+    market: asset.symbol === "NVDAx" && onchain
+      ? { session: onchain.session, interruption: onchain.interruption, reasonCategory: "NONE", reasonCode: "NONE", sessionSince: onchain.sessionAsOfUnix, nextScheduledTransition: onchain.nextScheduledTransitionUnix, interruptionSince: onchain.interruptionAsOfUnix, expectedResumption: 0 }
+      : { session: "UNKNOWN", interruption: "UNKNOWN", reasonCategory: "NONE", reasonCode: "NONE", sessionSince: 0, nextScheduledTransition: 0, interruptionSince: 0, expectedResumption: 0 },
+    valuationCondition: "NOT_PROVIDED",
+    primaryIssuance: "UNKNOWN",
+    programLifecycle: "UNKNOWN",
+  }));
   const client = supabaseServerClient();
   if (!client)
     return {
       ...empty,
-      error: "Live data is not configured in this environment.",
+      rows: catalogRows,
+      error: catalogResult.error,
     };
   const [venues, listings, programs, tokens, statuses, halts] =
     await Promise.all([
@@ -84,7 +111,8 @@ export async function loadBoard(): Promise<BoardSnapshot> {
   if (failure?.error)
     return {
       ...empty,
-      error: `Live data could not be loaded: ${failure.error.message}`,
+      rows: catalogRows,
+      error: `Live status could not be loaded: ${failure.error.message}`,
     };
   const listingById = new Map(
     (listings.data ?? []).map((listing) => [listing.listing_id, listing]),
@@ -118,6 +146,8 @@ export async function loadBoard(): Promise<BoardSnapshot> {
       `valuation:${program.program_id}`,
     )?.record;
     return {
+      source: "indexed",
+      statusSource: market ? "indexed" : null,
       symbol: program.symbol,
       underlyingSymbol: listing?.symbol ?? "—",
       name: program.name ?? listing?.name ?? program.symbol,
@@ -159,12 +189,30 @@ export async function loadBoard(): Promise<BoardSnapshot> {
       ),
     };
   });
+  const catalogBySymbol = new Map(catalogRows.map((asset) => [asset.symbol.toLowerCase(), asset]));
+  const indexedRows = rows.map((row) => {
+    const catalog = catalogBySymbol.get(row.symbol.toLowerCase());
+    return {
+      ...row,
+      logo: catalog?.logo ?? null,
+      tradingHoursMode: catalog?.tradingHoursMode ?? null,
+      tokenAddresses: row.tokenAddresses?.length ? row.tokenAddresses : catalog?.tokenAddresses ?? [],
+      statusSource: row.statusSource ?? catalog?.statusSource ?? null,
+      market: row.statusSource ? row.market : catalog?.market ?? row.market,
+    } satisfies BoardRow;
+  });
   return {
-    rows,
-    venues: (venues.data ?? []).map((venue) => ({
-      mic: venue.mic,
-      venueName: venue.name,
-    })),
+    rows: [...indexedRows, ...catalogRows.filter((asset) => !rows.some((row) => row.symbol.toLowerCase() === asset.symbol.toLowerCase()))],
+    venues: (venues.data ?? []).map((venue) => {
+      const supported = venue.mic in FAMILY_BY_MIC;
+      const window = supported ? resolveSessionWindow(venue.mic as Mic, Date.now() / 1000) : null;
+      return {
+        mic: venue.mic,
+        venueName: venue.name,
+        calendarSession: window?.session ?? "UNKNOWN",
+        nextTransition: window?.nextScheduledTransition ?? 0,
+      };
+    }),
     events: (halts.data ?? []).map((halt) => ({
       id: halt.id,
       listingId: halt.listing_id,
@@ -173,6 +221,6 @@ export async function loadBoard(): Promise<BoardSnapshot> {
       sourceUrl: halt.source_url,
     })),
     fetchedAt: new Date().toISOString(),
-    error: null,
+    error: catalogResult.error,
   };
 }

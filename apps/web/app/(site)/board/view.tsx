@@ -33,6 +33,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
   const [session, setSession] = useState("ALL");
   const [interruption, setInterruption] = useState("ALL");
   const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
   const [connection, setConnection] = useState<
     "connecting" | "connected" | "disconnected"
   >(url && key ? "connecting" : "disconnected");
@@ -47,6 +48,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
     name: "q" | "session" | "interruption",
     value: string,
   ) => {
+    setPage(1);
     if (name === "q") setSearch(value);
     else if (name === "session") setSession(value);
     else setInterruption(value);
@@ -138,6 +140,9 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
         .sort((a, b) => compareBySeverity(a.market, b.market)),
     [snapshot.rows, search, session, interruption],
   );
+  const pageSize = 50;
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+  const visibleRows = rows.slice((Math.min(page, pageCount) - 1) * pageSize, Math.min(page, pageCount) * pageSize);
   const counts = {
     REGULAR: 0,
     EXTENDED: 0,
@@ -162,7 +167,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
       <header className="mb-8">
         <h1 className="text-3xl font-semibold text-ink">Board</h1>
         <p className="mt-1 text-sm text-ink-secondary">
-          Real-market status of every tracked onchain stock.
+          X Layer xStocks from the issuer catalog, with attested status where available.
         </p>
         <p className="mt-2 text-xs text-ink-muted">
           Snapshot {new Date(snapshot.fetchedAt).toLocaleString()}
@@ -183,17 +188,16 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
       >
         {snapshot.venues.map((venue) => {
           const related = snapshot.rows.filter((row) => row.mic === venue.mic);
-          const representative = related[0];
           return (
             <VenueTile
               key={venue.mic}
               mic={venue.mic as Mic}
               venueName={venue.venueName}
-              session={representative?.market.session ?? "UNKNOWN"}
+              session={venue.calendarSession}
               nextTransition={
-                representative?.market.nextScheduledTransition
+                venue.nextTransition
                   ? formatVenueTime(
-                      representative.market.nextScheduledTransition,
+                      venue.nextTransition,
                       venue.mic as Mic,
                       false,
                     )
@@ -209,6 +213,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
           );
         })}
       </section>
+      <p className="mb-5 text-xs text-ink-muted">Venue tiles show the computed calendar session, not an attestation. Asset sessions below require indexed status.</p>
       <section
         aria-label="Summary"
         className="mb-8 flex flex-wrap gap-5 border-y border-border py-4 text-sm"
@@ -279,14 +284,14 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visibleRows.map((row) => (
               <tr
                 key={row.programId ?? row.symbol}
                 className="border-b border-border hover:bg-surface-muted"
               >
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-3">
-                    <AssetIcon symbol={row.symbol} size={36} />
+                    <AssetIcon symbol={row.symbol} issuerLogo={row.logo} size={36} />
                     <div>
                       <Link
                         href={`/asset/${encodeURIComponent(row.symbol)}`}
@@ -295,6 +300,7 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
                         {row.symbol}
                       </Link>
                       <div className="text-xs text-ink-muted">{row.name}</div>
+                      <div className="text-xs text-ink-muted">{row.statusSource === "onchain" ? "Onchain adapter" : row.statusSource === "indexed" ? "Indexed attestation" : "Issuer catalog · status unavailable"}</div>
                     </div>
                   </div>
                 </td>
@@ -344,10 +350,18 @@ export function BoardView({ initial }: { initial: BoardSnapshot }) {
           <p className="py-8 text-sm text-ink-muted">
             {snapshot.rows.length
               ? "No assets match these filters."
-              : "No tracked assets are available yet."}
+              : "The issuer catalog is unavailable right now."}
           </p>
         )}
       </section>
+      {rows.length > pageSize && <nav aria-label="Asset pages" className="mb-8 flex items-center justify-between gap-3 text-sm">
+        <span className="text-ink-muted">Showing {(Math.min(page, pageCount) - 1) * pageSize + 1}–{Math.min(page, pageCount) * pageSize > rows.length ? rows.length : Math.min(page, pageCount) * pageSize} of {rows.length} assets</span>
+        <div className="flex items-center gap-3">
+          <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)} className="rounded-control border border-border px-3 py-2 disabled:opacity-40">Previous</button>
+          <span>{page} / {pageCount}</span>
+          <button type="button" disabled={page >= pageCount} onClick={() => setPage(page + 1)} className="rounded-control border border-border px-3 py-2 disabled:opacity-40">Next</button>
+        </div>
+      </nav>}
       <section aria-labelledby="artwork-catalog-heading" className="mb-10">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2 border-b border-border pb-3">
           <div>

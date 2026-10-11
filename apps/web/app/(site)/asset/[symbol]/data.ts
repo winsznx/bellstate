@@ -14,6 +14,7 @@ import {
   type ValuationState,
 } from "@winsznx/bellstate-engine";
 import { supabaseServerClient } from "../../lib/supabase";
+import { loadCatalogAsset, type CatalogAsset } from "../../lib/xstocksCatalog";
 
 type Facet = "market" | "program" | "primary" | "valuation";
 type Status = {
@@ -39,6 +40,9 @@ const seconds = (value: unknown) => {
 const SOURCE_STATUSES = ["UNKNOWN", "OPEN", "CLOSED"] as const;
 
 export interface AssetDetail {
+  source: "issuer catalog" | "indexed";
+  logo: string | null;
+  tradingHoursMode: string | null;
   symbol: string;
   name: string;
   issuer: string;
@@ -63,14 +67,40 @@ export interface AssetDetail {
   >;
 }
 
+function catalogDetail(asset: CatalogAsset): AssetDetail {
+  return {
+    source: "issuer catalog",
+    logo: asset.logo,
+    tradingHoursMode: asset.tradingHoursMode,
+    symbol: asset.symbol,
+    name: asset.name,
+    issuer: "xStocks by Backed",
+    isin: asset.isin,
+    underlyingIsin: asset.underlyingIsin,
+    mic: asset.mic,
+    venueName: asset.venueName,
+    rawTokenAddress: asset.rawTokenAddress,
+    wrapperAddress: asset.wrapperAddress,
+    rawAdapterAddress: null,
+    wrapperAdapterAddress: null,
+    programActive: false,
+    market: null,
+    program: null,
+    primary: null,
+    valuation: null,
+    facets: {},
+  };
+}
+
 export async function loadAssetDetail(
   symbol: string,
 ): Promise<{ asset: AssetDetail | null; error: string | null }> {
+  const catalog = await loadCatalogAsset(symbol).catch(() => null);
   const client = supabaseServerClient();
   if (!client)
     return {
-      asset: null,
-      error: "Live data is not configured in this environment.",
+      asset: catalog ? catalogDetail(catalog) : null,
+      error: catalog ? null : "Live data is not configured in this environment.",
     };
   const { data: program, error } = await client
     .from("programs")
@@ -79,8 +109,8 @@ export async function loadAssetDetail(
     )
     .ilike("symbol", symbol)
     .maybeSingle();
-  if (error) return { asset: null, error: error.message };
-  if (!program) return { asset: null, error: null };
+  if (error) return { asset: catalog ? catalogDetail(catalog) : null, error: catalog ? null : error.message };
+  if (!program) return { asset: catalog ? catalogDetail(catalog) : null, error: null };
   const [listingResult, tokensResult, statusResult] = await Promise.all([
     program.reference_listing_id
       ? client
@@ -141,6 +171,9 @@ export async function loadAssetDetail(
   return {
     error: null,
     asset: {
+      source: "indexed",
+      logo: catalog?.logo ?? null,
+      tradingHoursMode: catalog?.tradingHoursMode ?? null,
       symbol: program.symbol,
       name: program.name ?? program.symbol,
       issuer: program.issuer,

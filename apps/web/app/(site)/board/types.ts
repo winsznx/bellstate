@@ -1,6 +1,10 @@
 import type { Lifecycle, MarketState } from "@winsznx/bellstate-engine";
 
 export interface BoardRow {
+  source?: "issuer catalog" | "indexed";
+  statusSource?: "onchain" | "indexed" | null;
+  logo?: string | null;
+  tradingHoursMode?: string | null;
   symbol: string;
   underlyingSymbol: string;
   name: string;
