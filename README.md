@@ -21,40 +21,21 @@ Built for SIMAN LABS SuperStar 2026 — RWA track, X Layer mainnet (chain 196).
 
 ### Try it
 
-1. Open the app — the Board (`/board`) lists every tracked venue and asset, reading real
-   session data live from Supabase.
-2. `/watch`, `/network`, `/developers` and the rest of the 18 PRD screens are reachable from
-   the sidebar; most are still fixture-backed pending a live signer/aggregator (see below).
-3. The landing page at `/` explains the model; it isn't part of the oracle itself.
+1. Open the [Board](https://bellstate.timjosh507.workers.dev/board) to search the live xStocks issuer catalog for X Layer tokens. Issuer listings and calendar sessions are labeled separately from Bellstate status.
+2. Open [NVDAx](https://bellstate.timjosh507.workers.dev/asset/NVDAx) for the deployed adapter's direct X Layer reading, or call [`GET /v1/status/NVDAx`](https://bellstate-api.timjosh507.workers.dev/v1/status/NVDAx). An `UNKNOWN` or stale response is the correct result when attestations have not been refreshed.
+3. Open [Watch](https://bellstate.timjosh507.workers.dev/watch) for live public Hyperliquid xyz perp quotes. Bellstate's own mappings and flags are identified separately.
+4. Try the [free Print Check preview](https://bellstate.timjosh507.workers.dev/developers/print-check) with the historical SK hynix examples, and read the [source-linked replay case study](https://bellstate.timjosh507.workers.dev/replay/jul-28-2026-sk-hynix). Both explain the evidence they do and do not use.
+5. Use [Network](https://bellstate.timjosh507.workers.dev/network) for live service reachability, and [Developers](https://bellstate.timjosh507.workers.dev/developers) for deployed addresses and contract reads.
 
-### What is live, and what is not
+### Current state
 
-**Live.** All eight core contracts (`BellstateHub`, `AdapterFactory`, `StatusAdapter`,
-`HookDeployer`, `HaltGateHook`, `LendingGuard`, `PrintGuard`, `PolicyLens`) deployed and
-verified on X Layer mainnet by reading real bytecode back from the chain, not just trusting
-a deploy log. One real asset (NVDAx) registered end to end, with a real quorum-signed status
-already attested onchain: `apps/signer`'s real halt-merge logic read the live Nasdaq and NYSE
-feeds (0 open halts) and the real session calendar, two of three signers signed a real
-EIP-712 `MarketUpdate`, a submitter wallet wrote it to the hub
-([`0x6706693c…f018a274b`](https://www.oklink.com/xlayer/tx/0x6706693c27e828824dd05f612242c22dad6e5f2b437270f9394c3f8f018a274b)),
-and the NVDAx adapter's `referenceMarketStatus()` reads it back correctly (`CLOSED`, `NONE`,
-not stale) — see `deployments/xlayer-mainnet.json`'s `firstAttestation` for the full trail.
-A real Supabase project (27 tables, RLS verified against the live REST API) with the real 7
-venues seeded. A real Next.js frontend and Hono API, both deployed to Cloudflare Workers,
-both curl-verified against their live URLs. 241 tests passing (192 TypeScript, 49 Solidity),
-including a 10,000-input fork test proving the TypeScript policy mirror matches the deployed
-`PolicyLens` contract exactly.
+Eight core contracts are deployed on X Layer mainnet. NVDAx is registered and has a historical quorum-signed attestation ([transaction](https://www.oklink.com/xlayer/tx/0x6706693c27e828824dd05f612242c22dad6e5f2b437270f9394c3f8f018a274b)). The API, aggregator, notifier, watch, and three signer Workers are deployed. The frontend and API are deployed on Cloudflare Workers. The public database has seven venues; its asset, status, replay-frame, and watch-event tables are not yet populated.
 
-**Not yet live.** That first attestation was a one-shot proof, not a running service —
-`apps/signer` and `apps/aggregator` aren't deployed as continuously-running Workers yet, so
-the status above will go stale until they are. `apps/notifier` and `apps/watch` have no
-source yet. The owner role is a single EOA rather
-than the PRD's 2-of-3 Safe (a deliberate hackathon-stage choice — upgrading later needs a
-role grant, not a redeploy; see `deployments/xlayer-mainnet.json`). The valuation facet
-(Chainlink Data Streams equity feed) is deliberately off: real API credentials were issued,
-but equities access is enterprise/sales-gated, not self-serve — see `internal/NEEDS.md` item
-1. This is the ERC-8392 spec's own designed-for-graceful-degradation path, not a bug: no
-program has a valuation stream designated, so the interface simply isn't advertised.
+The submitter wallet currently lacks enough OKB to keep publishing onchain updates. Existing signed status therefore ages into `UNKNOWN`. The issuer catalog, calendar calculations, public perp quotes, guard reads, and offchain Print Check preview remain usable without new onchain transactions. These sources do not substitute for signed attestation.
+
+Chainlink Data Streams valuation is disabled. Both the original and regenerated local credential pairs failed the mainnet API with HTTP 401 (the latest response was `user does not exist`); account activation and feed entitlement remain unverified. Chainlink's documented feed subscriptions are paid. No valuation stream is designated, so no valuation status is advertised.
+
+The owner role is still a single EOA rather than the PRD's 2-of-3 Safe. Paid x402 settlement, live Bellstate Watch flags, alerts backed by actual status events, and a frame-by-frame signed replay remain unfinished. The historical replay page is a sourced case study, not an attested replay.
 
 ### Repo layout
 
@@ -62,11 +43,11 @@ program has a valuation stream designated, so the interface simply isn't adverti
 apps/
   web        Next.js 15 frontend (deployed)
   api        Hono backend on Cloudflare Workers (deployed)
-  signer     Halt/session state machines, EIP-712 signing (built, not yet deployed)
+  signer     Halt/session state machines, EIP-712 signing (three Workers deployed)
   indexer    Hub event decoding (built, not yet deployed)
-  aggregator Fan-in for signer submissions (not yet built)
-  notifier   Alert delivery — Telegram, webhooks (not yet built)
-  watch      Oracle Watch monitoring surface (not yet built)
+  aggregator Fan-in for signer submissions (deployed)
+  notifier   Alert delivery — Telegram, webhooks (deployed)
+  watch      Oracle Watch monitoring Worker (deployed)
 packages/
   contracts  Solidity — hub, adapters, hooks, guards, policy libs (Foundry)
   engine     Pure status-derivation functions
@@ -86,8 +67,8 @@ results — the project's own running record of what was verified and how.
 
 ```bash
 pnpm install
-pnpm -r test          # 192 TS tests across every package/app
-cd packages/contracts && forge test   # 49 Solidity tests
+pnpm -r test
+cd packages/contracts && forge test
 ```
 
 Full env var reference is in each app's `.env.example`. Real, gitignored credentials and

@@ -1,19 +1,26 @@
 import { EIP712_TYPES } from "@winsznx/bellstate-protocol";
 import { INTERRUPTION_LABELS, SESSION_LABELS, VALUATION_LABELS, PRIMARY_LEG_LABELS } from "@winsznx/bellstate-ui";
+import deployment from "../../../../../deployments/xlayer-mainnet.json";
 
-// PRD §11.5 S10. The EIP-712 type strings below are the real ones from packages/protocol, not
-// transcribed — the same source the signer and hub use. Addresses need deployments/196.json
-// (doesn't exist — no hub deployed yet). API/x402/webhooks/Telegram/SDK sections need those
-// services built first (none are). Changelog-from-BUILDLOG.md isn't wired up.
+// PRD §11.5 S10. Types and deployed addresses come from their checked-in sources of truth.
 
-const QUICKSTART = `import { createPublicClient, http } from "viem";
+const QUICKSTART = `import { createPublicClient, http, parseAbi } from "viem";
 
 const client = createPublicClient({ transport: http("https://rpc.xlayer.tech") });
 const status = await client.readContract({
-  address: "0x...", // adapter address, from deployments/196.json (not deployed yet)
-  abi: [/* IReferenceMarketStatus */],
+  address: "${deployment.assets.NVDAx.wrappedAdapter}",
+  abi: parseAbi(["function referenceMarketStatus() view returns (uint8 session, uint8 interruption, uint64 sessionAsOf, uint64 interruptionAsOf, uint64 nextScheduledTransition, bytes32 marketId)"]),
   functionName: "referenceMarketStatus",
-});`;
+});
+console.log(status); // UNKNOWN (0) is expected while attestations are stale`;
+
+const ADDRESSES = [
+  ["BellstateHub", deployment.contracts.BellstateHub],
+  ["HaltGateHook", deployment.contracts.HaltGateHook],
+  ["AdapterFactory", deployment.contracts.AdapterFactory],
+  ["NVDAx wrapped adapter", deployment.assets.NVDAx.wrappedAdapter],
+  ["NVDAx raw adapter", deployment.assets.NVDAx.rawAdapter],
+] as const;
 
 export default function DevelopersPage() {
   return (
@@ -29,8 +36,12 @@ export default function DevelopersPage() {
 
       <section aria-label="Addresses" className="mb-10 text-sm text-ink-muted">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">Addresses</h2>
-        No hub is deployed yet — deployments/196.json doesn&apos;t exist. This section will list
-        the hub, HaltGate, AdapterFactory and per-token adapter addresses once it does.
+        <p className="mb-3">Verified X Layer mainnet deployment (chain {deployment.chainId}). NVDAx is the first registered asset.</p>
+        <dl className="space-y-2">
+          {ADDRESSES.map(([label, address]) => (
+            <div key={label}><dt className="font-medium text-ink">{label}</dt><dd className="break-all font-mono text-xs">{address}</dd></div>
+          ))}
+        </dl>
       </section>
 
       <section aria-label="ERC-8392 reference" className="mb-10">
@@ -83,9 +94,8 @@ export default function DevelopersPage() {
         ))}
       </section>
 
-      <section aria-label="Not yet built" className="border-t border-border pt-6 text-sm text-ink-muted">
-        Guards reference, API try-it, x402, webhooks, Telegram, SDK, run-a-signer and changelog
-        sections need the API/aggregator/signer services and a deployed hub — not built yet.
+      <section aria-label="Availability" className="border-t border-border pt-6 text-sm text-ink-muted">
+        The contract playground reads the live NVDAx adapter and LendingGuard. The free Print Check preview runs local calendar and policy rules. Paid x402 checks, alert management, SDK quickstarts and a changelog are still being connected.
       </section>
     </main>
   );
