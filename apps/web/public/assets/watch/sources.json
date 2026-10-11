@@ -1,0 +1,404 @@
+{
+  "AAOI": {
+    "issuerSymbol": "AAOIx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/AAOIx.png",
+    "sha256": "1ae7d63c2d0686dd33be8ea79b6fd81f4799dc1843b3f5c30c449c86e0dc7787"
+  },
+  "AAPL": {
+    "issuerSymbol": "AAPLx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/AAPLx.png",
+    "sha256": "930db19951493787ee286650222311b5158317bdb811205b450cfb412ab89295"
+  },
+  "ACN": {
+    "issuerSymbol": "ACNx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/ACNx.png",
+    "sha256": "fea13bedb26f5c3c6b965358f4601534cd47831b3c00639bf40d5ac6bff7d44f"
+  },
+  "AMAT": {
+    "issuerSymbol": "AMATx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/AMATx.png",
+    "sha256": "cc046e519458b1cc7a631b569be2628f469821118cd6ab3eb92868bde09a7108"
+  },
+  "AMD": {
+    "issuerSymbol": "AMDx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/AMDx.png",
+    "sha256": "d4b3a6dc338de3d4e6574d106ee937595557a4aa5a7dfb94a323163be2e9bbbf"
+  },
+  "AMZN": {
+    "issuerSymbol": "AMZNx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/AMZNx.png",
+    "sha256": "dbf6bfee7c8cd38e53a9191a5a3df6bbd69690c84a39330228b8cbe203f0d478"
+  },
+  "ARM": {
+    "issuerSymbol": "ARMx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/ARMx.png",
+    "sha256": "a9fbe807c8dc9b72018d206b966f3936abbbfab83d038e829f67f0f8a5582d6f"
+  },
+  "ASML": {
+    "issuerSymbol": "ASMLx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/ASMLx.png",
+    "sha256": "9d4b54eea0c6ca44ba63f426a5df11d87ea611474008470db897a68d871b3aac"
+  },
+  "AVGO": {
+    "issuerSymbol": "AVGOx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/AVGOx.png",
+    "sha256": "ce27288249edbe36b246d21b661a583b92da9c10a388f2de43b3e5512c0ca95a"
+  },
+  "BE": {
+    "issuerSymbol": "BEx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/BEx.png",
+    "sha256": "9553cccb0354f5cc67fcac7f08a441c0ee3fea030de1e222c53a3af73a66e17b"
+  },
+  "BMNR": {
+    "issuerSymbol": "BMNRx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/BMNRx.png",
+    "sha256": "681c97c79f581bf40bb56124429f14c8f68e752602da318d8fdc64045b4f3b1e"
+  },
+  "BOT": {
+    "issuerSymbol": "BOTx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/BOTx.png",
+    "sha256": "0c8b043958e1850e6843a9dc85a748a7fd231c7246e64852c3436600ede93277"
+  },
+  "BX": {
+    "issuerSymbol": "BXx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/BXx.png",
+    "sha256": "7ef034770187267ef97de84ba9f70a42b31afb0e549252c942f055a4c55d6476"
+  },
+  "CBRS": {
+    "issuerSymbol": "CBRSx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/CBRSx.png",
+    "sha256": "a7b96ec4ca326766b5c03f2ab5b66d91694dd2fb8ffb43796199e878146e5163"
+  },
+  "CL": {
+    "issuerSymbol": "CLx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/CLx.png",
+    "sha256": "a26bbbe58e0969946b65dd9d63251fb3279707742ab279efad2e531f5eb82906"
+  },
+  "COIN": {
+    "issuerSymbol": "COINx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/COINx.png",
+    "sha256": "7b028dd209022659803a269eb4a35f61995249e9e2c17635ffe2db41eefce6d6"
+  },
+  "CRCL": {
+    "issuerSymbol": "CRCLx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/CRCLx.png",
+    "sha256": "fbd0e30678880d808e69193523f84de0e02b1d1ba487447d5777a698aa4cec8c"
+  },
+  "CRWD": {
+    "issuerSymbol": "CRWDx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/CRWDx.png",
+    "sha256": "33299b93e019c0a48198e7fa2f12aa3150bab356e4f14c7b51e14d72d698a0ec"
+  },
+  "CRWV": {
+    "issuerSymbol": "CRWVx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/CRWVx.png",
+    "sha256": "839346b1fec031b01440f7e4667b57392c6b15b1f17e7fd355a9faff6c78dbf9"
+  },
+  "CVX": {
+    "issuerSymbol": "CVXx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/CVXx.png",
+    "sha256": "0b6fbe039b63a817026bb9c241d394f33238beffbbd4e92516f83d4aa207d769"
+  },
+  "DELL": {
+    "issuerSymbol": "DELLx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/DELLx.png",
+    "sha256": "95adcc037abadc475ca053f3f030bc6e9ea6b8818fc49bc87d655a78c2520396"
+  },
+  "DKNG": {
+    "issuerSymbol": "DKNGx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/DKNGx.png",
+    "sha256": "85373bc0a9d8a6ad8a1d9ed87a076a1f1825bfe559d05e41e1b24487bc2a005f"
+  },
+  "EWY": {
+    "issuerSymbol": "EWYx",
+    "mic": "ARCX",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/EWYx.png",
+    "sha256": "9a01854e4d1260d2714f28686a0ca24769389eb7161ef37e553d34276cf675c6"
+  },
+  "GEV": {
+    "issuerSymbol": "GEVx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/GEVx.png",
+    "sha256": "13c577c97bc6ac07369b32472cf36231c0c97436c53727818ca0d551abe912d0"
+  },
+  "GLW": {
+    "issuerSymbol": "GLWx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/GLWx.png",
+    "sha256": "31c2406ac71d001d1a2162d9b8ac8ea15b488ee84fe49915183435cb6c06867a"
+  },
+  "GME": {
+    "issuerSymbol": "GMEx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/GMEx.png",
+    "sha256": "709f953a165589700393b799bc93fe5ff7faae9b2247194a609db8631830ed45"
+  },
+  "GOOGL": {
+    "issuerSymbol": "GOOGLx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/GOOGLx.png",
+    "sha256": "b9240e1eb8a5174f437d82eb7852e54f318ae05f55409be38df3b851f9a8e876"
+  },
+  "HIMS": {
+    "issuerSymbol": "HIMSx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/HIMSx.png",
+    "sha256": "4ec52aff8ad967839a6202493e09e24815887c204193e8cc7a7f43044bdf891d"
+  },
+  "HOOD": {
+    "issuerSymbol": "HOODx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/HOODx.png",
+    "sha256": "aa5cb6f961da95ca81791268e5c0f7e5e309c8156303920c6c45b74aa1e49d2a"
+  },
+  "IBM": {
+    "issuerSymbol": "IBMx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/IBMx.png",
+    "sha256": "5cd2d8e2e55ba9bfcdc7e3b24fdcee9387e8b1e6c8f65c7d7f4c55508f457412"
+  },
+  "INTC": {
+    "issuerSymbol": "INTCx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/INTCx.png",
+    "sha256": "9d2a44123644f9dc5380fa51b2db887fbf9a0e16ec395ae29c088a85f64ee44f"
+  },
+  "IREN": {
+    "issuerSymbol": "IRENx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/IRENx.png",
+    "sha256": "d7cbeab295b6912977477a6bd6825e20fcdab7c2230bdc893f03d6fc74312dd3"
+  },
+  "KORU": {
+    "issuerSymbol": "KORUx",
+    "mic": "ARCX",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/KORUx.png",
+    "sha256": "3191d2254d40151a6885f129b0948e8c3ab04b38474d4bac3f4443d30e1d2994"
+  },
+  "LITE": {
+    "issuerSymbol": "LITEx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/LITEx.png",
+    "sha256": "0eec760113478c9bce2103c2bb4813414a21caccd8f8a007b84ae14f3824b83e"
+  },
+  "LLY": {
+    "issuerSymbol": "LLYx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/LLYx.png",
+    "sha256": "ca392fbba859972096157e15f8ed412753b409f266a81c05b5bb6fda841e2d3d"
+  },
+  "LRCX": {
+    "issuerSymbol": "LRCXx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/LRCXx.png",
+    "sha256": "b218eef5f04458dc87b1d0db9707fdaff39254ba5368e9ecbaf0952ead20879c"
+  },
+  "META": {
+    "issuerSymbol": "METAx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/METAx.png",
+    "sha256": "52cb2a0719cdc068ccccc28ba2f6451d4db43e48734a2e7832da7e66b0d7e806"
+  },
+  "MRNA": {
+    "issuerSymbol": "MRNAx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/MRNAx.png",
+    "sha256": "25826607307cd2c9dea488328c2fd09fc52254f4df986ba91b25bb9e01203640"
+  },
+  "MRVL": {
+    "issuerSymbol": "MRVLx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/MRVLx.png",
+    "sha256": "188d8dd81f407ea6e17ca901952944b84302526fb5215ef0588305343bfb51da"
+  },
+  "MSFT": {
+    "issuerSymbol": "MSFTx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/MSFTx.png",
+    "sha256": "254e57a4c746213c9773c00933ab360ff81ba023c3cc7ed9f2a3fd5224e4e3c2"
+  },
+  "MSTR": {
+    "issuerSymbol": "MSTRx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/MSTRx.png",
+    "sha256": "1456e378930a91691694252aef4c77d0b56eb296802a9b1396a4a92629a449a8"
+  },
+  "MU": {
+    "issuerSymbol": "MUx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/MUx.png",
+    "sha256": "580adef0a2b7c9623e545933b1a20c4c3a15ce8c6dca8b5694fb17979beecc32"
+  },
+  "NBIS": {
+    "issuerSymbol": "NBISx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/NBISx.png",
+    "sha256": "1867bf0fd3d9ed6815e88631f9b1d53b56bcb0547d38f4434811fe02087aec28"
+  },
+  "NET": {
+    "issuerSymbol": "NETx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/NETx.png",
+    "sha256": "d18c8e4a87858a0bcef5060397b22eb2f15afa087918ca76afd0b072e15a98d5"
+  },
+  "NFLX": {
+    "issuerSymbol": "NFLXx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/NFLXx.png",
+    "sha256": "c2bf0dec601909d4b5228d28dd3d3682517d4cdccfcf42707c0ac7a4d617c44a"
+  },
+  "NOW": {
+    "issuerSymbol": "NOWx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/NOWx.png",
+    "sha256": "c741f92764245f5eaa1933dd71d9047c1c1da6be55aeaf66955f0819d58cadaf"
+  },
+  "NVDA": {
+    "issuerSymbol": "NVDAx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/NVDAx.png",
+    "sha256": "6b639eff0158850c474d378ed8580375c396dda494cfff9040e6b1735b8ef623"
+  },
+  "ORCL": {
+    "issuerSymbol": "ORCLx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/ORCLx.png",
+    "sha256": "33f8faea39d4ad48654be04de6a4679a4c9dbbfecccdbd7c5c872b4609cf0877"
+  },
+  "PLTR": {
+    "issuerSymbol": "PLTRx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/PLTRx.png",
+    "sha256": "edada1087693ec0de61c5386c0a166617b8b140658d6532326133a563441fd6e"
+  },
+  "QCOM": {
+    "issuerSymbol": "QCOMx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/QCOMx.png",
+    "sha256": "5cd3de479345289ed670f8db1055fe16827ff54a9230bfa0acbd6e98c60a888b"
+  },
+  "RDDT": {
+    "issuerSymbol": "RDDTx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/RDDTx.png",
+    "sha256": "bf11485b2810f71deeaad84d41cd906e83a2d64c2fd72b0b4c433669524786e2"
+  },
+  "RIVN": {
+    "issuerSymbol": "RIVNx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/RIVNx.png",
+    "sha256": "0f218760f9cf74be10ddfb7dee1d933fe770ccea6aeaeb8da736b132cdba239a"
+  },
+  "RKLB": {
+    "issuerSymbol": "RKLBx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/RKLBx.png",
+    "sha256": "0fc843b46928c326cd67ae556256e2b22643c8d8cdb7131914bc440730bad666"
+  },
+  "SHAZ": {
+    "issuerSymbol": "SHAZx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SHAZx.png",
+    "sha256": "6884f38411bf76b36ff779626074d956bb253871543f43e9bdb90c8c8b513119"
+  },
+  "SKHY": {
+    "issuerSymbol": "SKHYx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SKHYx.png",
+    "sha256": "adf74e917f895dff59018c21c262383be0115925ba0656825eca25141e0aa31d"
+  },
+  "SMH": {
+    "issuerSymbol": "SMHx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SMHx.png",
+    "sha256": "be80564ebfd2052b43e776d181ce62419216149349d279b6473da26ba3dfcd56"
+  },
+  "SNDK": {
+    "issuerSymbol": "SNDKx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SNDKx.png",
+    "sha256": "60a690470a0b21675c393557245c51619c696e8fd4dc0373bec3111ec512c28b"
+  },
+  "SOXL": {
+    "issuerSymbol": "SOXLx",
+    "mic": "ARCX",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SOXLx.png",
+    "sha256": "711e033a6a857879b5d3b34be63b72bb37633121dac48d506f2777d58540d363"
+  },
+  "SPCX": {
+    "issuerSymbol": "SPCXx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/SPCXx.png",
+    "sha256": "cf54500376d08d55e7b8a8508ea6b02a18d3f665ed0fb7f3fcd6fe8697a0029d"
+  },
+  "STRC": {
+    "issuerSymbol": "STRCx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/STRCx.png",
+    "sha256": "868e6594129c614c7aa45b77b8a47dc90e0e3755a03121e61773d97e9a9026fd"
+  },
+  "TSLA": {
+    "issuerSymbol": "TSLAx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/TSLAx.png",
+    "sha256": "42cb949ac9a7e6385df10a59bcd47576260c6a78bf54df0eea962343644d7fd8"
+  },
+  "TSM": {
+    "issuerSymbol": "TSMx",
+    "mic": "XNYS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/TSMx.png",
+    "sha256": "1425b20cb8df64e7c02f8ab6b36ba6253aeed7538228f051af06eb822b1390d0"
+  },
+  "TWST": {
+    "issuerSymbol": "TWSTx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/TWSTx.png",
+    "sha256": "f21147188dc896581644f96c79204edab68488c23a564312c20f3ef2043588a0"
+  },
+  "USAR": {
+    "issuerSymbol": "USARx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/USARx.png",
+    "sha256": "521fa69f027d1d2fc74b3e1708e02397784ac33d266619d0e130ab42f1008f83"
+  },
+  "WDC": {
+    "issuerSymbol": "WDCx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/WDCx.png",
+    "sha256": "bc44a74fd43776bc36aca283d9e2276794cde177e895582349122b877abc6ce5"
+  },
+  "XLE": {
+    "issuerSymbol": "XLEx",
+    "mic": "ARCX",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/XLEx.png",
+    "sha256": "f6f1977f2714453fcbeef178c66320483f9bdb690c615a083c7cc8f29cb65e1e"
+  },
+  "ZM": {
+    "issuerSymbol": "ZMx",
+    "mic": "XNAS",
+    "source": "https://xstocks-metadata.backed.fi/logos/tokens/ZMx.png",
+    "sha256": "b57d433666ee1fd4c153b3b597b8c3335755d58bef2ad9b1e7579e0d618a4e54"
+  }
+}
